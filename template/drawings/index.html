@@ -1,0 +1,11 @@
+
+
+{% if latest_drawing_list %}
+    <ul>
+    {% for drawing in latest_drawing_list %}
+        <li><a href="/drawings/{{ drawing.id }}/">{{ drawing.drawingpart }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No drawings are available.</p>
+{% endif %}
