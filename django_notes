@@ -1,0 +1,15 @@
+create app
+python manage.py startapp BLAH
+
+in settings.py, under installed_apps add:
+'BLAH'
+run
+python manage.py sql BLAH
+python manage.py syncdb:8080
+
+For anything db:
+https://docs.djangoproject.com/en/dev/intro/tutorial01/
+
+from drawings.models import Drawing
+
+

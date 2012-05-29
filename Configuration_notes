@@ -1,0 +1,76 @@
+http://blog.stannard.net.au/2010/12/11/installing-django-with-apache-and-mod_wsgi-on-ubuntu-10-04/
+(very useful site)
+
+> sudo apt-get update
+> sudo apt-get upgrade
+
+Install LAMP
+Install django
+	run command: sudo python setup.py install
+Install setuptools for python
+install dependcies for mysqldb-python:
+	sudo apt-get build-dep python-mysqldb
+	download mysql-python
+install mod_wgsi
+	run command: ./configure
+
+sudo apt-get install apache2 libapache2-mod-wsgi
+
+CREATE FOLDER TO STORE SITE
+sudo mkdir /srv/www
+sudo nano /etc/hosts
+
+128.113.90.40	djangoserver
+128.113.90.40	BLAH.djangoserver
+
+create django site
+cd srv/www
+sudo django-admin.py startproject BLAH
+> sudo mkdir /srv/www/hello/apache
+> sudo nano /srv/www/hello/apache/django.wsgi
+import os
+import sys
+ 
+path = '/srv/www/BLAH'
+if path not in sys.path:
+    sys.path.insert(0, '/srv/www/BLAH')
+ 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'hello.settings'
+ 
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
+
+
+CREATE APACHE SITE
+sudo nano /etc/apache2/sites-available/BLAH
+<VirtualHost *:80>
+ 
+    ServerName hello.djangoserver
+    DocumentRoot /srv/www/hello
+ 
+    <Directory /srv/www/hello>
+        Order allow,deny
+        Allow from all
+    </Directory>
+ 
+    WSGIDaemonProcess hello.djangoserver processes=2 threads=15 display-name=%{GROUP}
+    WSGIProcessGroup hello.djangoserver
+ 
+    WSGIScriptAlias / /srv/www/hello/apache/django.wsgi
+ 
+</VirtualHost>
+
+
+ACTIVE SITE
+sudo a2ensite BLAH
+sudo /etc/init.d.apache2 reload
+GO TO
+http://BLAH.djangoserver
+
+TO TEST WHY NOT WORKING IN DEVELOPMENT MODE
+python manage.py runserver 0:8080
+http:// BLAH.djangoserver:8080
+
+tail /var/log/apache2/error.log
+
+
