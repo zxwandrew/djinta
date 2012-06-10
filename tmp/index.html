@@ -12,107 +12,397 @@
 		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
 
 		<!-- Replace the following with root of your domain and delete these references
-			
+
 		<link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
 		<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
 		<link rel="shortcut icon" href="static/favicon.ico" />
 		-->
-		
+
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 		<link rel="shortcut icon" href="favicon.ico" />
 		<script type="text/javascript" src="file/jquery-1.7.2.min.js"></script>
-		
+		<script type="text/javascript" src="file/modernizr.js"></script>
+
+		<!--resizing mostly-->
 		<script type="text/javascript">
-			$(document).ready(function(){
-				//Get Height on load
-				var newWindowHeight = $(window).height()-31;
-				$(".Drawing-Interface").css("height", newWindowHeight );
-				
+			var DrawingInterfaceHeight, TrueHeight, TrueWidth, DrawingHeight, DrawingWidth;
+			var ObjNum = 0;
+			var AllParts= new Array;
+			
+			function NearPart(AbsCoordX, AbsCoordY){
+				for(i=0; i<AllParts.length; i++){
+					switch(AllParts[i].type){
+						case "member":
+							var slope=(AllParts[i].y2-AllParts[i].y1)/(AllParts[i].x2-AllParts[i].x1);
+							
+							slope*AllParts[i].x2;
+							var equation = AbsCoordX*slope+AllParts[i].y1
+							
+							
+					}
+				}
+			}
+
+			function init() {
+				//For Drawing-Interface
+				DrawingInterfaceHeight = $(window).height() - 62;
+				$(".Drawing-Interface").css("height", DrawingInterfaceHeight);
+
+				//For Viewport
+				TrueHeight = $(window).height();
+				TrueWidth = $(window).width();
+				$(".Viewport").css("height", TrueHeight);
+				$(".Viewport").css("width", TrueWidth);
+
+				//For Drawing-Canvas
+				DrawingHeight = (0.75 * ($(window).height())) - (0.75 * ($(window).height()) % 75) + 1;
+				DrawingWidth = (0.75 * ($(window).width())) - (0.75 * ($(window).width()) % 75) + 1;
+				$(".Drawing-Canvas").css("height", DrawingHeight);
+				$(".Drawing-Canvas").css("width", DrawingWidth);
+
+				//Coordinate Tracker(1)
+				var gridcanvas = document.getElementById('GridCanvas');
+				var context = gridcanvas.getContext('2d');
+
+				gridcanvas.addEventListener('mousemove', function(evt) {
+					var mousePos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), DrawingHeight);
+					//divide by 15?
+					var adjustedX = (mousePos.adjustedX / 15).toFixed(3);
+					var adjustedY = (mousePos.adjustedY / 15).toFixed(3);
+					var message = "Mouse position: " + adjustedX + "," + adjustedY + "<br/>" + "Snap position:" + mousePos.snapX + "," + mousePos.snapY;
+					$('#CoordinateBar').html(message);
+				}, true);
+
+				//Generate divs for Drawing
+				for( i = 0; i < DrawingHeight / 15; i++) {
+					if(i % 5 != 0) {
+						var str1 = "<div style='z-index: 3; position: absolute; left: 0px; right: 0px; top: "
+						var str2 = i * 15;
+						var str3 = "px; height: 1px; background: none repeat scroll 0% 0% rgba(0, 87, 150, 0.3);'></div>"
+						str1 = str1.concat(str2).concat(str3);
+						$(str1).appendTo($(".Drawing-Canvas"))
+					} else {
+						var str1 = "<div style='z-index: 3; position: absolute; left: 0px; right: 0px; top: "
+						var str2 = i * 15;
+						var str3 = "px; height: 1px; background: none repeat scroll 0% 0% rgba(0, 87, 150, 0.9);'></div>"
+						str1 = str1.concat(str2).concat(str3);
+						$(str1).appendTo($(".Drawing-Canvas"))
+					}
+				}
+
+				for( i = 0; i < DrawingWidth / 15; i++) {
+					if(i % 5 != 0) {
+						var str1 = "<div style='z-index: 3; position: absolute; top: 0px; bottom: 0px; left: "
+						var str2 = i * 15;
+						var str3 = "px; width: 1px; background: none repeat scroll 0% 0% rgba(0, 87, 150, 0.3);'></div>"
+						str1 = str1.concat(str2).concat(str3);
+						$(str1).appendTo($(".Drawing-Canvas"))
+					} else {
+						var str1 = "<div style='z-index: 3; position: absolute; top: 0px; bottom: 0px; left: "
+						var str2 = i * 15;
+						var str3 = "px; width: 1px; background: none repeat scroll 0% 0% rgba(0, 87, 150, 0.9);'></div>"
+						str1 = str1.concat(str2).concat(str3);
+						$(str1).appendTo($(".Drawing-Canvas"))
+					}
+				}
+
 				//Get Height on resize
 				$(window).bind("resize", resizeWindow);
-					function resizeWindow( e ) {
-						var newWindowHeight = $(window).height()-31;
-						$(".Drawing-Interface").css("height", newWindowHeight );
-					}
-			}); 
+				function resizeWindow(e) {
+					DrawingInterfaceHeight = $(window).height() - 62;
+					$(".Drawing-Interface").css("height", DrawingInterfaceHeight);
+				}
+
+			}
+
 		</script>
-	
+
 	</head>
 
-	<body id="DrawingBody">
-			<nav id="DrawingMenu">
-				<ul>
-					<li>
-						<a href="#">File</a>
-						<ul>
-							<li><a href="#">New</a></li>
-							<li><a href="#">Saving</a></li>
-						</ul>
-					</li>
-					<li><a href="#">Edit</a></li>
-					<li><a href="#">Blah</a></li>
-					<li><a href="#">Blah</a></li>
-				</ul>
-			</nav>
+	<body id="DrawingBody" onload="init();">
+		<nav id="DrawingMenu">
+			<ul>
+				<li>
+					<a href="#">File</a>
+					<ul>
+						<li>
+							<a href="#">New</a>
+						</li>
+						<li>
+							<a href="#">Saving</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="#">Edit</a>
+				</li>
+				<li>
+					<a href="#">Options</a>
+					<ul>
+						<li>
+							<a href="#">Snaping On/Off</a>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<a href="#">Calculate</a>
+				</li>
+			</ul>
+		</nav>
 
-    <script type="text/javascript">
-	(function($){
+		<script type="text/javascript">
+			(function($) {
 
-		//cache nav
-		var nav = $("#DrawingMenu");
-		//add indicators and hovers to submenu parents
-		nav.find("li").each(function() {
-			if ($(this).find("ul").length > 0) {
+				//cache nav
+				var nav = $("#DrawingMenu");
+				//add indicators and hovers to submenu parents
+				nav.find("li").each(function() {
+					if($(this).find("ul").length > 0) {
 
-				//show subnav on hover
-				$(this).mouseenter(function() {
-					$(this).find("ul").stop(true, true).slideDown();
+						//show subnav on hover
+						$(this).mouseenter(function() {
+							$(this).find("ul").stop(true, true).slideDown();
+						});
+
+						//hide submenus on exit
+						$(this).mouseleave(function() {
+							$(this).find("ul").stop(true, true).slideUp();
+						});
+					}
 				});
+			})(jQuery);
+		</script>
 
-				//hide submenus on exit
-				$(this).mouseleave(function() {
-					$(this).find("ul").stop(true, true).slideUp();
-				});
-			}
-		});
-	})(jQuery);
-</script>
+		<div class="Drawing-Interface">
+			<div class="Tool-Bar">
+				<div class="Tool-Bar-Slider Scrollable">
 
-	<div class="Drawing-Interface">
-		<div class="Tool-Bar">
-			<div class="Tool-Bar-Slider Scrollable">
-				
-				<div class="Panel" id="StrucutralPanel">
-					<h3>Structural Panel</h3>
-					
-				</div>
-				
-			</div>
-		</div>
-		
-		<div class="Viewport-Container">
-			<div class="Viewport-Scrollable">
-				<div class="Viewport">
-					<div id="SuperCanvas" class="Inline-Hint-Canvas">
-						<div class="Drawing-Canvas">
-							
+					<div class="Panel" id="StrucutralPanel">
+						<h3>Structural Panel</h3>
+						<div class="PanelContent" id="StrucutralPanelContent">
+							<!--Truss Block-->
+							<a href="javascript:CreateMember();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MemberBlock" name="MemberBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+
 						</div>
+
 					</div>
+
 				</div>
-			</dvi>
+			</div>
+
+			<div class="Viewport-Container">
+				<div class="Viewport-Scrollable">
+					<div class="Viewport">
+
+						<div id="SuperCanvas" class="Inline-Hint-Canvas">
+							<div class="Drawing-Canvas">
+								<div class="Obj-Canvas" id="ObjCanvas"></div>
+								<canvas id="GridCanvas" class="Grid-Canvas" style="width: 100%; height: 100%;"></canvas>
+							</div>
+						</div>
+
+					</div>
+					</dvi>
+
+				</div>
+			</div>
+
 		</div>
-	</div>
 
+		<div class="Bottom-Bar">
+			<div id="CoordinateBar"></div>
+			<div id="CommandBar"></div>
+		</div>
 
+		<script type="text/javascript">
+			//SNAP OFF!
+			function CreateMember() {
+				$(".MemberBlock").css("background-color", "#ccc");
 
+				$('#CommandBar').html("Creating: Members Pick First Point:");
 
+				var message;
+				var coordinates = new Array();
+				var abs_coordinates = new Array();
+				var gridcanvas = document.getElementById('GridCanvas');
 
+				//Mouse movement tracker
+				var MemberCreationTracker = function(e) {
+					var mouseTrack = getMousePos(gridcanvas, e, $(".Viewport-Scrollable"), window.DrawingHeight);
 
+					var obj = document.getElementById("obj" + window.ObjNum);
+					var ctx = obj.getContext("2d");
 
+					ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+					ctx.beginPath();
+					ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
+					ctx.lineTo(mouseTrack.absoluteX, mouseTrack.absoluteY);
+					ctx.stroke();
+				}
+				var MemberCreationHandler = function(evt) {
+					var mousePos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), window.DrawingHeight);
+					var firstX = (mousePos.adjustedX / 15).toFixed(3);
+					var firstY = (mousePos.adjustedY / 15).toFixed(3);
+					message = "First Coordinate:" + firstX + "," + firstY;
+					$('#CommandBar').html(message);
 
+					//Display for user coords
+					point = new Array();
+					point.push(mousePos.snapX);
+					point.push(mousePos.snapY);
+					coordinates.push(point);
 
+					//For back-end coords
+					abs_point = new Array();
+					abs_point.push(mousePos.absoluteX);
+					abs_point.push(mousePos.absoluteY);
+					abs_coordinates.push(abs_point);
 
+					//Create First Point
+					if(abs_coordinates.length == 1) {
+						str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+						$(str1).appendTo($(".Obj-Canvas"));
 
-  
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+						//console.log(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.beginPath();
+						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.lineTo(abs_coordinates[0][0] + 2, abs_coordinates[0][1] + 2);
+						ctx.stroke();
+						$("#GridCanvas").bind('mousemove', MemberCreationTracker);
+					}
+
+					if(coordinates.length >= 2) {
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+
+						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+
+						ctx.beginPath();
+						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.lineTo(abs_coordinates[1][0], abs_coordinates[1][1]);
+						ctx.stroke();
+						
+						//store into AllParts and localStorage
+						part=new Object();
+						part.type="member";
+						part.x1=abs_coordinates[0][0];
+						part.y1=abs_coordinates[0][1];
+						part.x2=abs_coordinates[1][0];
+						part.y2=abs_coordinates[1][1];
+						part.e=300000;
+						part.i=100;
+						part.area=10;
+						AllParts.push(part);
+						localStorage["part"+window.ObjNum]=JSON.stringify(part);
+						
+						//alert(JSON.parse(localStorage["part"+window.ObjNum]).x1 );
+
+						//Reset coordinates and abs-coordinates
+						var tempAbsPoint = new Array;
+						tempAbsPoint.push(abs_coordinates[1][0]);
+						tempAbsPoint.push(abs_coordinates[1][1]);
+						abs_coordinates.length = 0;
+						abs_coordinates.push(tempAbsPoint);
+
+						var tempPoint = new Array;
+						tempPoint.push(coordinates[1][0]);
+						tempPoint.push(coordinates[1][1]);
+						coordinates.length = 0;
+						coordinates.push(tempPoint);
+
+						//increase objnum count
+						ObjNum++;
+
+						//Continuing Lines
+						str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+						$(str1).appendTo($(".Obj-Canvas"));
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+						//console.log(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.beginPath();
+						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.lineTo(abs_coordinates[0][0] + 2, abs_coordinates[0][1] + 2);
+						ctx.stroke();
+						$("#GridCanvas").bind('mousemove', MemberCreationTracker);
+					}
+
+				}
+				$("#GridCanvas").bind('click', MemberCreationHandler);
+
+				var CancelMemberCreation = function(e) {
+					//if ESC is pressed
+					if(e.keyCode == 27) {
+						//unbind
+						$("#GridCanvas").unbind('mousemove', MemberCreationTracker);
+						$("#GridCanvas").unbind('click', MemberCreationHandler);
+
+						$(".MemberBlock").css("background-color", "rgba(255,255,255,0.2)");
+						//clear last canvas
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+					}
+				}
+				$(document).bind('keydown', CancelMemberCreation);
+			}
+		</script>
+
+		<!--draw some shapes for the panel-->
+		<script type="text/javascript">
+			var MemberBlock = document.getElementsByName("MemberBlock");
+			var ctx = MemberBlock[0].getContext("2d");
+			ctx.moveTo(4, 21);
+			ctx.lineTo(38, 21);
+			ctx.stroke();
+		</script>
+
+		<!--Coordinate tracker 2-->
+		<script type="text/javascript">
+			function getMousePos(canvas, evt, ViewportScrollable, DrawingHeight) {
+				// get canvas position
+				var obj = canvas;
+				var top = 0;
+				var left = 0;
+				while(obj && obj.tagName != 'BODY') {
+					top += obj.offsetTop;
+					left += obj.offsetLeft;
+					obj = obj.offsetParent;
+				}
+
+				// return relative mouse position
+				var mouseX = evt.clientX - left + window.pageXOffset;
+				var mouseY = evt.clientY - top + window.pageYOffset;
+
+				var adjustedX = (ViewportScrollable.scrollLeft() + mouseX);
+				var adjustedY = (DrawingHeight - (ViewportScrollable.scrollTop() + mouseY)) - 1;
+
+				//snapX
+				if(adjustedX % 15 < 8) {
+					snapX = (adjustedX - (adjustedX % 15)) / 15
+				} else {
+					snapX = (adjustedX + 15 - (adjustedX % 15)) / 15
+				}
+
+				//snapY
+				if(adjustedY % 15 < 8) {
+					snapY = (adjustedY - (adjustedY % 15)) / 15
+				} else {
+					snapY = (adjustedY + 15 - (adjustedY % 15)) / 15
+				}
+
+				return {
+					absoluteX : (ViewportScrollable.scrollLeft() + mouseX),
+					absoluteY : (ViewportScrollable.scrollTop() + mouseY),
+					adjustedX : adjustedX,
+					adjustedY : adjustedY,
+					snapX : snapX,
+					snapY : snapY
+				};
+
+			}
+		</script>
+
 	</body>
 </html>
