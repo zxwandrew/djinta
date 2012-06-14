@@ -50,11 +50,10 @@ h2{
 }
 h4{
     font-family: 'FundamentalBrigadeRegular';
-     font-size: 40px;
-     margin: 0;
-     color: #dbdee0;
-     
-     text-shadow: 1px 6px 6px #000000;
+    font-size: 40px;
+    margin: 0;
+    color: #dbdee0;
+    text-shadow: 1px 6px 6px #000000;
     filter: dropshadow(color=#000000, offx=1, offy=3);
 }
 
@@ -186,13 +185,14 @@ nav ul ul a:hover { background-color:#555; }
     top: 0;
     overflow: scroll;
     position: absolute;
-    z-index: 0
+    z-index: 0;
 }
 .Viewport{
 	cursor: default;
 	min-height: 100%;
 	position: relative;
 	min-height:100%;
+	z-index:100;
 }
 
 
@@ -259,9 +259,31 @@ nav ul ul a:hover { background-color:#555; }
 .Tool-Box-Block-Canvas{
 	color: rgba(255,255,255,0.2)
 }
-
-
-
+.Property-Bar{
+	width:100px; 
+	height: 100%;
+	float:right; 
+	background-color: #f2f2f2;
+	color: #555;
+	visibility: hidden;
+	position: relative;
+	z-index: 999;
+}
+.Property-Bar p{
+	margin:0;
+	font-size: 1.5em;
+}
+.Property-Bar h4{
+	margin:0;
+	font-size: 2em;
+	text-shadow: 0px 0px 0px;
+	color: #555;
+}
+.Drag-Selection{
+	background-color: red;
+	z-index: 10;
+	position: absolute;
+}
 
 
 
