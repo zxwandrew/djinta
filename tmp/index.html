@@ -22,6 +22,7 @@
 		<link rel="shortcut icon" href="favicon.ico" />
 		<script type="text/javascript" src="file/jquery-1.7.2.min.js"></script>
 		<script type="text/javascript" src="file/modernizr-2.5.3.js"></script>
+		<script src="file/iphone-style-checkboxes.js" type="text/javascript" charset="utf-8"></script>
 
 		<!--
 		<script type="text/javascript" src="file/jquery.event.drag.live-2.2.js"></script>-->
@@ -31,7 +32,9 @@
 		<script type="text/javascript">
 			var DrawingInterfaceHeight, TrueHeight, TrueWidth, DrawingHeight, DrawingWidth;
 			var ObjNum = 0;
+			var Snapping = 'false';
 			var AllParts = new Array;
+			var pastselect = new Array;
 
 			function NearPart(AbsCoordX, AbsCoordY) {
 				for( i = 0; i < AllParts.length; i++) {
@@ -64,6 +67,29 @@
 					}//end switch
 				}
 				return -1;
+			}
+
+			function DragHighlightPart(CloseTo) {
+				for( j = 0; j < CloseTo.length; j++) {
+					switch(AllParts[CloseTo[j]].type) {
+						case "member":
+							//Highlight path
+							var obj = document.getElementById("ClickHighlightCanvas");
+							var ctx = obj.getContext("2d");
+							ctx.beginPath();
+							ctx.moveTo(AllParts[CloseTo[j]].x1, AllParts[CloseTo[j]].y1);
+							ctx.lineTo(AllParts[CloseTo[j]].x2, AllParts[CloseTo[j]].y2);
+							ctx.lineWidth = 6;
+							ctx.strokeStyle = "#8ED6FF";
+							ctx.stroke();
+					}
+				}
+			}
+
+			function ClearDragHighlight() {
+				var obj = document.getElementById("ClickHighlightCanvas");
+				var ctx1 = obj.getContext("2d");
+				ctx1.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
 			}
 
 			function ClickHighlightPart(CloseTo) {
@@ -108,7 +134,7 @@
 				ctx1.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
 			}
 
-			function UpdateProperty(form, match) {
+			function UpdateMemberProperty(form, match) {
 				//alert(matchingselected);
 				var matchingselected = match.split("X");
 				for( j = 0; j < matchingselected.length; j++) {
@@ -118,42 +144,72 @@
 				}
 			}
 
+			function UpdateForceProperty(form, match) {
+				var matchingselected = match.split("X");
+				for( j = 0; j < matchingselected.length; j++) {
+					AllParts[matchingselected[j]].magnitude = form.magnitude.value;
+				}
+			}
+
 			function DisplayProperty(selected) {
 				$('#PropertyBar').css("visibility", "visible");
 
-				var e = AllParts[selected[0]].e;
-				var i = AllParts[selected[0]].i;
-				var area = AllParts[selected[0]].area;
-				var matchingselected = new Array;
+				//alert(AllParts[selected[0]].type);
 
-				//check if they all have the same property, if not break and return first
-				for( j = 0; j < selected.length; j++) {
-					if(e != AllParts[selected[j]].e || i != AllParts[selected[j]].i || area != AllParts[selected[j]].area) {
-						matchingselected[0] = selected[0];
-						break;
+				if(AllParts[selected[0]].type == "member") {
+					var e = AllParts[selected[0]].e;
+					var i = AllParts[selected[0]].i;
+					var area = AllParts[selected[0]].area;
+					var matchingselected = new Array;
+
+					//check if they all have the same property, if not break and return first
+					for( j = 0; j < selected.length; j++) {
+						if(e != AllParts[selected[j]].e || i != AllParts[selected[j]].i || area != AllParts[selected[j]].area) {
+							matchingselected[0] = selected[0];
+							break;
+						} else {
+							matchingselected[j] = selected[j];
+						}
+					}
+
+					//check if one or all
+					if(matchingselected.length == 1) {
+						var displaymessage = '<h4>Properties</h4><p>Editing: ' + selected[0] + '</p><br/> <form> i: <input class="Property-Textbox" type="text" name="i" value="' + i + '"/>';
 					} else {
-						matchingselected[j] = selected[j];
+						var displaymessage = '<h4>Properties</h4><p>Editing: ';
+						for( k = 0; k < matchingselected.length; k++) {
+							displaymessage += matchingselected[k] + ', ';
+						}
+						displaymessage += '</p><br/> <form> i: <input class="Property-Textbox" type="text" name="i" value="' + i + '"/>';
 					}
-				}
+					//modify matchingselected so it is passable
+					var tempselected = "'" + matchingselected.join('X') + "'";
 
-				//check if one or all
-				if(matchingselected.length == 1) {
-					var displaymessage = '<h4>Properties</h4><p>Editing: ' + selected[0] + '</p><br/> <form> i: <input type="text" name="i" value="' + i + '"/>';
-				} else {
-					var displaymessage = '<h4>Properties</h4><p>Editing: ';
-					for( k = 0; k < matchingselected.length; k++) {
-						displaymessage += matchingselected[k] + ', ';
+					//Generate form
+					displaymessage += 'e: <input class="Property-Textbox" type="text" name="e" value="' + e + '"/>';
+					displaymessage += 'area: <input class="Property-Textbox" type="text" name="area" value="' + area + '"/><br/>';
+					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateMemberProperty(this.form, ' + tempselected + ')"/></form>';
+					$('#PropertyBar').html(displaymessage);
+				}//end member selection
+				
+				else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == "YForce" || AllParts[selected[0]].type == "MForce") {
+
+					var matchingselected = new Array;
+					var displaymessage = '<h4>Properties</h4><p>Editing Forces: ';
+					for( k = 0; k < selected.length; k++) {
+						if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == "YForce" || AllParts[selected[0]].type == "MForce") {
+							matchingselected.push(selected[k]);
+							displaymessage += selected[k] + ', ';
+						}
 					}
-					displaymessage += '</p><br/> <form> i: <input type="text" name="i" value="' + i + '"/>';
-				}
-				//modify matchingselected so it is passable
-				var tempselected = "'" + matchingselected.join('X') + "'";
+					displaymessage += '</p><br/> <form> Magnitude: <input class="Property-Textbox" type="text" name="magnitude" value="' + AllParts[selected[0]].magnitude + '"/>';
+					var tempselected = "'" + matchingselected.join('X') + "'";
+					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateForceProperty(this.form, ' + tempselected + ')"/></form>';
+					$('#PropertyBar').html(displaymessage);
 
-				//Generate form
-				displaymessage += 'e: <input type="text" name="e" value="' + e + '"/>';
-				displaymessage += 'area: <input type="text" name="area" value="' + area + '"/>';
-				displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateProperty(this.form, ' + tempselected + ')"/></form>';
-				$('#PropertyBar').html(displaymessage);
+				}
+				//end force selection
+
 			}
 
 			function HideProperty() {
@@ -173,28 +229,19 @@
 			//Will need to be improved!!!!, currently works only if the end point is selected!!!
 			function ContainPart(minx, miny, maxx, maxy) {
 				//work in absolute coordinate
-				var pastselect = new Array;
+				var select = new Array;
 				for( i = 0; i < AllParts.length; i++) {
 					switch(AllParts[i].type) {
 						case "member":
+							//check
 							if((minx < AllParts[i].x1 && maxx > AllParts[i].x1 && miny < AllParts[i].y1 && maxy > AllParts[i].y1) || (minx < AllParts[i].x2 && maxx > AllParts[i].x2 && miny < AllParts[i].y2 && maxy > AllParts[i].y2)) {
-								pastselect.push(i);
+								select.push(i);
 								ClickHighlightPart(i);
-							} else {
-								var index = pastselect.indexOf(i);
-								if(index != null) {
-									pastselect.splice(index, 1);
-									//ClearClickHighlight(i);
-								}
-
 							}
-					}
-				}
-				if(pastselect.length != 0) {
-					DisplayProperty(pastselect);
-				}
 
-				return pastselect;
+					}//end switch
+				}
+				return select;
 			}
 
 			//select with click (multi with shift)
@@ -202,30 +249,31 @@
 				var gridcanvas = document.getElementById('GridCanvas');
 				var context = gridcanvas.getContext('2d');
 				var shifted = 0;
-				var pastselect = new Array;
 
 				var ClickHandler = function(evt) {
+					//alert("here");
 					var clickPos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), DrawingHeight);
 					var CloseTo = NearPart(clickPos.absoluteX, clickPos.absoluteY);
 					if(CloseTo != -1 && evt.shiftKey == 0) {
 						//keep track of list
-						pastselect.length = 0;
-						pastselect.push(CloseTo);
+						window.pastselect.length = 0;
+						window.pastselect.push(CloseTo);
 						//Unhighlight then highlight
 						ClearClickHighlight();
 						ClickHighlightPart(CloseTo);
 						//Display the property bar
-						DisplayProperty(pastselect);
+						DisplayProperty(window.pastselect);
 					} else if(CloseTo != -1 && evt.shiftKey == 1) {
 						//keep track of list
-						pastselect.push(CloseTo);
+						window.pastselect.push(CloseTo);
 						//highlight
 						ClickHighlightPart(CloseTo);
 						//Display the property bar
-						DisplayProperty(pastselect);
+						DisplayProperty(window.pastselect);
 					} else {
-						pastselect.length = 0;
+						window.pastselect.length = 0;
 						ClearClickHighlight();
+						ClearDragHighlight();
 						//Hide Property bar
 						HideProperty();
 					}
@@ -235,9 +283,9 @@
 				var DeleteHandler = function(e) {
 					if(e.keyCode == 46) {
 						HideProperty();
-						ClearClickHighlight(pastselect);
-						ClearHoverHighlight(pastselect);
-						DeletePart(pastselect);
+						ClearClickHighlight(window.pastselect);
+						ClearHoverHighlight(window.pastselect);
+						DeletePart(window.pastselect);
 					}
 				}
 				$(document).bind('keydown', DeleteHandler);
@@ -248,6 +296,8 @@
 				var context = gridcanvas.getContext('2d');
 
 				$('#GridCanvas').drag("start", function(ev, dd) {
+					window.pastselect.length = 0;
+					HideProperty();
 					return $('<div class="Drag-Selection" />').css('opacity', .6).appendTo($(".Obj-Canvas"));
 
 				}).drag(function(ev, dd) {
@@ -267,7 +317,13 @@
 					//Check within rectangle or not, also takes care of highlighting and show property
 					var x2 = x1 + wi;
 					var y2 = y1 + he;
-					var pastselect = ContainPart(x1, y1, x2, y2);
+					window.pastselect.length = 0;
+					window.pastselect = ContainPart(x1, y1, x2, y2);
+					ClearClickHighlight();
+					if(window.pastselect.length != 0) {
+						DragHighlightPart(window.pastselect);
+						DisplayProperty(window.pastselect);
+					}
 
 				}).drag("end", function(ev, dd) {
 					$(dd.proxy).remove();
@@ -276,15 +332,23 @@
 				var DeleteHandler = function(e) {
 					if(e.keyCode == 46) {
 						HideProperty();
-						ClearClickHighlight(pastselect);
-						ClearHoverHighlight(pastselect);
-						DeletePart(pastselect);
+						ClearDragHighlight();
+						ClearDragHighlight(window.pastselect);
+						DeletePart(window.pastselect);
 					}
 				}
 				$(document).bind('keydown', DeleteHandler);
 			}
 
 			function init() {
+				//snaponoff
+				$("#Snap-on-off").attr("autocomplete", "off");
+				var onchange_checkbox = ($('#Snap-on-off')).iphoneStyle({
+					onChange : function(elem, value) {
+						window.Snapping = value.toString();
+						//('#CommandBar').html(value.toString());
+					}
+				});
 				//For Drawing-Interface
 				DrawingInterfaceHeight = $(window).height() - 62;
 				$(".Drawing-Interface").css("height", DrawingInterfaceHeight);
@@ -306,6 +370,8 @@
 				$(str1).appendTo($(".Obj-Canvas"));
 				str1 = '<canvas id="HoverHighlightCanvas" class="Highlight-Canvas" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
 				$(str1).appendTo($(".Obj-Canvas"));
+				str1 = '<canvas id="DragHighlightCanvas" class="Highlight-Canvas" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+				$(str1).appendTo($(".Obj-Canvas"));
 
 				//Coordinate Tracker(1)
 				var gridcanvas = document.getElementById('GridCanvas');
@@ -318,9 +384,7 @@
 					var adjustedY = (mousePos.adjustedY / 15).toFixed(3);
 					var message = "Mouse position: " + adjustedX + "," + adjustedY + "<br/>" + "Snap position:" + mousePos.snapX + "," + mousePos.snapY;
 					$('#CoordinateBar').html(message);
-
 					var CloseTo = NearPart(mousePos.absoluteX, mousePos.absoluteY);
-					//$('#CommandBar').html(message2);
 					if(CloseTo != -1) {
 						ClearHoverHighlight();
 						HoverHighlightPart(CloseTo);
@@ -404,6 +468,7 @@
 					<a href="#">Calculate</a>
 				</li>
 			</ul>
+
 		</nav>
 
 		<script type="text/javascript">
@@ -433,11 +498,39 @@
 			<div class="Tool-Bar">
 				<div class="Tool-Bar-Slider Scrollable">
 
+					<div class="Panel" id="SnapSwitch">
+						<h3>Snapping</h3>
+						<div class="PanelContent" id="SnapSwitchContent">
+							<br/>
+							<input type="checkbox" id="Snap-on-off" value="false"/>
+							<br/>
+						</div>
+					</div>
+
 					<div class="Panel" id="StrucutralPanel">
 						<h3>Structural Panel</h3>
 						<div class="PanelContent" id="StrucutralPanelContent">
 							<!--Truss Block-->
-							<a href="javascript:CreateMember();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MemberBlock" name="MemberBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateMember();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MemberBlock" name="MemberBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreatePoint('Hinge');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable Hinge-Block" name="HingeBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreatePoint('FixedJoint');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable FixedJoint-Block" name="FixedJointBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreatePoint('XSupport');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable XSupport-Block" name="XSupportBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreatePoint('YSupport');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable YSupport-Block" name="YSupportBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreatePoint('PinSupport');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable PinSupport-Block" name="PinSupportBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreatePoint('FixedSupport');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable FixedSupport-Block" name="FixedSupportBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+						</div>
+
+					</div>
+
+					<div class="Panel" id="ForcelPanel">
+						<h3>Force Panel</h3>
+						<div class="PanelContent" id="ForcePanelContent">
+							<!--Truss Block-->
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('XForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable XForce-Block" name="XForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('YForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable YForce-Block" name="YForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('MForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MForce-Block" name="MForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateDistributedForce();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable DForce-Block" name="DForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 
 						</div>
 
@@ -472,17 +565,179 @@
 			<div id="CommandBar"></div>
 		</div>
 
+		<!--draw some shapes for the panel-->
+		<script type="text/javascript">
+			//member block
+			var MemberBlock = document.getElementsByName("MemberBlock");
+			var ctx = MemberBlock[0].getContext("2d");
+			ctx.strokeStyle = "black";
+			ctx.moveTo(4, 21);
+			ctx.lineTo(38, 21);
+			ctx.stroke();
+
+			//hinge block
+			var HingeBlock = document.getElementsByName("HingeBlock");
+			var ctx = HingeBlock[0].getContext("2d");
+			ctx.beginPath();
+			ctx.arc(21, 21, 10, 0, 2 * Math.PI, false);
+			ctx.fillStyle = "white";
+			ctx.fill();
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+
+			//fixed joint block
+			var block = document.getElementsByName("FixedJointBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.beginPath();
+			ctx.arc(21, 21, 10, 0, 2 * Math.PI, false);
+			ctx.fillStyle = "black";
+			ctx.fill();
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+
+			//x support block
+			var block = document.getElementsByName("XSupportBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.beginPath();
+			ctx.arc(21, 21, 10, 0, 2 * Math.PI, false);
+			ctx.fillStyle = "blue";
+			//ctx.fill();
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+			ctx.font = "bold 12px sans-serif";
+			ctx.textBaseline = "middle";
+			ctx.fillStyle = "black";
+			ctx.fillText("X", 17.5, 22);
+
+			//Y support block
+			var block = document.getElementsByName("YSupportBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.beginPath();
+			ctx.arc(21, 21, 10, 0, 2 * Math.PI, false);
+			ctx.fillStyle = "blue";
+			//ctx.fill();
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+			ctx.font = "bold 12px sans-serif";
+			ctx.textBaseline = "middle";
+			ctx.fillStyle = "black";
+			ctx.fillText("Y", 17.5, 22);
+
+			//pin support block
+			var PinSupportBlock = document.getElementsByName("PinSupportBlock");
+			var ctx = PinSupportBlock[0].getContext("2d");
+			ctx.beginPath();
+			ctx.moveTo(21.5, 11.5);
+			// give the (x,y) coordinates
+			ctx.lineTo(11.5, 31);
+			ctx.lineTo(31.5, 31);
+			ctx.lineTo(21.5, 11.5);
+			ctx.fillStyle = "red";
+			//ctx.fill();
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.stroke();
+
+			//fixed support block
+			var FixedSupportBlock = document.getElementsByName("FixedSupportBlock");
+			var ctx = FixedSupportBlock[0].getContext("2d");
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.strokeRect(11, 6, 20, 30);
+			//lines inside
+			ctx.beginPath();
+			ctx.moveTo(12, 6);
+			ctx.lineTo(31, 15);
+			ctx.moveTo(12, 15);
+			ctx.lineTo(31, 25);
+			ctx.moveTo(12, 25);
+			ctx.lineTo(31, 35);
+			ctx.stroke();
+
+			var block = document.getElementsByName("XForceBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.beginPath();
+			ctx.lineWidth = 2;
+			ctx.moveTo(21, 10);
+			ctx.lineTo(21, 32);
+			ctx.moveTo(13, 23);
+			ctx.lineTo(21, 32);
+			ctx.moveTo(29, 23);
+			ctx.lineTo(21, 32);
+			ctx.stroke();
+
+			var block = document.getElementsByName("YForceBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.beginPath();
+			ctx.lineWidth = 2;
+			ctx.moveTo(10, 21);
+			ctx.lineTo(32, 21);
+			ctx.moveTo(23, 13);
+			ctx.lineTo(32, 21);
+			ctx.moveTo(23, 29);
+			ctx.lineTo(32, 21);
+			ctx.stroke();
+
+			var block = document.getElementsByName("MForceBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.beginPath();
+			ctx.arc(21, 21, 10, .5 * Math.PI, 2 * Math.PI, false);
+			ctx.lineWidth = 2;
+			ctx.stroke();
+
+			ctx.beginPath();
+			ctx.moveTo(22, 31);
+			ctx.lineTo(18, 23);
+			ctx.moveTo(22, 31);
+			ctx.lineTo(15.5, 36.5);
+			ctx.stroke();
+
+			var block = document.getElementsByName("DForceBlock");
+			var ctx = block[0].getContext("2d");
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "black";
+			ctx.strokeRect(6, 11, 30, 20);
+			ctx.beginPath();
+			ctx.moveTo(12, 11);
+			ctx.lineTo(12, 31);
+			ctx.moveTo(18, 11);
+			ctx.lineTo(18, 31);
+			ctx.moveTo(24, 11);
+			ctx.lineTo(24, 31);
+			ctx.moveTo(30, 11);
+			ctx.lineTo(30, 31);
+			ctx.stroke();
+
+		</script>
+
 		<script type="text/javascript">
 			//SNAP OFF!
-			function CreateMember() {
-				$(".MemberBlock").css("background-color", "#ccc");
+			function CreateMember(Type) {
 
-				$('#CommandBar').html("Creating: Members Pick First Point:");
+				//If cancel is called, unbind everything
+				if(Type == "Cancel") {
+					//clear last canvas
+					if(document.getElementById("obj" + window.ObjNum) != null) {
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+						ctx.beginPath();
+						ctx.stroke();
+						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+					}
+					//unbind everything
+					$("#GridCanvas").unbind('mousemove.member', MemberCreationTracker);
+					$("#GridCanvas").unbind('click.member', MemberCreationHandler);
+					$(document).unbind('keydown.member', CancelMemberCreation);
 
-				var message;
-				var coordinates = new Array();
-				var abs_coordinates = new Array();
-				var gridcanvas = document.getElementById('GridCanvas');
+					//unhighlight member block
+					$(".MemberBlock").css("background-color", "transparent");
+					$('#CommandBar').html("");
+					return 0;
+				}
 
 				//Mouse movement tracker
 				var MemberCreationTracker = function(e) {
@@ -502,38 +757,73 @@
 					ctx.strokeStyle = "black";
 					ctx.stroke();
 
-					ctx.beginPath();
-					ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
-					ctx.lineTo(mouseTrack.absoluteX, mouseTrack.absoluteY);
-					ctx.stroke();
+					if(window.Snapping == 'true') {
+						ctx.beginPath();
+						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.lineTo(mouseTrack.AbsSnapX, mouseTrack.AbsSnapY);
+						ctx.stroke();
+					} else {
+						ctx.beginPath();
+						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
+						ctx.lineTo(mouseTrack.absoluteX, mouseTrack.absoluteY);
+						ctx.stroke();
+					}
+
 				}
 				var MemberCreationHandler = function(evt) {
 					var mousePos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), window.DrawingHeight);
-					var firstX = (mousePos.adjustedX / 15).toFixed(3);
-					var firstY = (mousePos.adjustedY / 15).toFixed(3);
+					if(window.Snapping == "true") {
+						var firstX = mousePos.snapX;
+						var firstY = mousePos.snapY;
+					} else {
+						var firstX = (mousePos.adjustedX / 15).toFixed(3);
+						var firstY = (mousePos.adjustedY / 15).toFixed(3);
+					}
+
+					//message = "First Coordinate:" + firstX + "," + firstY + ", ABS SNAP" + mousePos.AbsSnapX + "," + mousePos.AbsSnapY + ", ABS" + mousePos.absoluteX + ',' + mousePos.absoluteY;
 					message = "First Coordinate:" + firstX + "," + firstY;
 					$('#CommandBar').html(message);
 
-					//Display for user coords
+					//For User and server coords
 					point = new Array();
-					point.push(mousePos.snapX);
-					point.push(mousePos.snapY);
-					coordinates.push(point);
+					if(window.Snapping == 'true') {
+						point.push(mousePos.snapX);
+						point.push(mousePos.snapY);
+						coordinates.push(point);
+					} else {
+						point.push((mousePos.adjustedX / 15).toFixed(3));
+						point.push((mousePos.adjustedY / 15).toFixed(3));
+						coordinates.push(point);
+					}
 
-					//For back-end coords
+					//For displaying coords
 					abs_point = new Array();
-					abs_point.push(mousePos.absoluteX);
-					abs_point.push(mousePos.absoluteY);
-					abs_coordinates.push(abs_point);
+					if(window.Snapping == 'true') {
+						abs_point.push(mousePos.AbsSnapX);
+						abs_point.push(mousePos.AbsSnapY);
+						abs_coordinates.push(abs_point);
+					} else {
+						abs_point.push(mousePos.absoluteX);
+						abs_point.push(mousePos.absoluteY);
+						abs_coordinates.push(abs_point);
+					}
 
 					//Create First Point
 					if(abs_coordinates.length == 1) {
-						str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
-						$(str1).appendTo($(".Obj-Canvas"));
 
-						var obj = document.getElementById("obj" + window.ObjNum);
-						var ctx = obj.getContext("2d");
-
+						//check if the canvas already exist
+						if(document.getElementById("obj" + window.ObjNum) == null) {
+							//If does not exist, create canvas and get context
+							str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+							$(str1).appendTo($(".Obj-Canvas"));
+							var obj = document.getElementById("obj" + window.ObjNum);
+							var ctx = obj.getContext("2d");
+						} else {
+							//if does, get context and clear
+							var obj = document.getElementById("obj" + window.ObjNum);
+							var ctx = obj.getContext("2d");
+							ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+						}
 						//starting point
 						ctx.beginPath();
 						ctx.arc(abs_coordinates[0][0], abs_coordinates[0][1], 3, 0, 2 * Math.PI, false);
@@ -543,17 +833,17 @@
 						ctx.strokeStyle = "black";
 						ctx.stroke();
 
+						//actual path
 						ctx.beginPath();
 						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
 						ctx.lineTo(abs_coordinates[0][0] + 2, abs_coordinates[0][1] + 2);
 						ctx.stroke();
-						$("#GridCanvas").bind('mousemove', MemberCreationTracker);
+						$("#GridCanvas").bind('mousemove.member', MemberCreationTracker);
 					}
 
 					if(coordinates.length >= 2) {
 						var obj = document.getElementById("obj" + window.ObjNum);
 						var ctx = obj.getContext("2d");
-
 						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
 
 						//starting Point
@@ -587,6 +877,11 @@
 						part.y1 = abs_coordinates[0][1];
 						part.x2 = abs_coordinates[1][0];
 						part.y2 = abs_coordinates[1][1];
+						//for server
+						part.servx1 = coordinates[0][0];
+						part.servy1 = coordinates[0][1];
+						part.servx2 = coordinates[1][0];
+						part.servy2 = coordinates[1][1];
 						part.e = 300000;
 						part.i = 100;
 						part.area = 10;
@@ -621,11 +916,20 @@
 						ctx.moveTo(abs_coordinates[0][0], abs_coordinates[0][1]);
 						ctx.lineTo(abs_coordinates[0][0] + 2, abs_coordinates[0][1] + 2);
 						ctx.stroke();
-						$("#GridCanvas").bind('mousemove', MemberCreationTracker);
+						$("#GridCanvas").bind('mousemove.member', MemberCreationTracker);
 					}
 
 				}
-				$("#GridCanvas").bind('click', MemberCreationHandler);
+				//start real stuff
+				$(".MemberBlock").css("background-color", "#ccc");
+				$('#CommandBar').html("Creating: Members Pick First Point:");
+
+				var message;
+				var coordinates = new Array();
+				var abs_coordinates = new Array();
+				var gridcanvas = document.getElementById('GridCanvas');
+
+				$("#GridCanvas").bind('click.member', MemberCreationHandler);
 
 				var CancelMemberCreation = function(e) {
 					//if ESC is pressed
@@ -634,28 +938,393 @@
 						$("#GridCanvas").unbind('mousemove', MemberCreationTracker);
 						$("#GridCanvas").unbind('click', MemberCreationHandler);
 
-						$(".MemberBlock").css("background-color", "rgba(255,255,255,0.2)");
+						$(".MemberBlock").css("background-color", "transparent");
 						//clear last canvas
 						var obj = document.getElementById("obj" + window.ObjNum);
 						var ctx = obj.getContext("2d");
+						ctx.beginPath();
+						ctx.stroke();
 						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+
 						$('#CommandBar').html("");
+						//unbind the esc
+						$(document).unbind('keydown.member', CancelMemberCreation);
 					}
 				}
-				$(document).bind('keydown', CancelMemberCreation);
+				$(document).bind('keydown.member', CancelMemberCreation);
 			}
+
+			function CreatePoint(Type) {
+				//If cancel is called
+				if(Type == "Cancel") {
+					//unbind everything
+					//$("#GridCanvas").unbind('mousemove', PointCreationTracker);
+					$("#GridCanvas").unbind('click.point', PointCreationHandler);
+					$(document).unbind('keydown.point', CancelPointCreation);
+					//unhighlight member block
+					$(".Tool-Box-Block-Canvas").css("background-color", "transparent");
+					$('#CommandBar').html("");
+					return 0;
+				}
+
+				var PointCreationHandler = function(evt) {
+					var mousePos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), window.DrawingHeight);
+					if(window.Snapping == "true") {
+						var firstX = mousePos.snapX;
+						var firstY = mousePos.snapY;
+
+						var absX = mousePos.AbsSnapX;
+						var absY = mousePos.AbsSnapY;
+					} else {
+						var firstX = (mousePos.adjustedX / 15).toFixed(3);
+						var firstY = (mousePos.adjustedY / 15).toFixed(3);
+
+						var absX = mousePos.absoluteX;
+						var absY = mousePos.absoluteY;
+					}
+
+					message = "Point Created at:" + firstX + "," + firstY;
+					$('#CommandBar').html(message);
+
+					//Check if there are existing canvas, if not create and get context, else clear
+					if(document.getElementById("obj" + window.ObjNum) == null) {
+						str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+						$(str1).appendTo($(".Obj-Canvas"));
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+					} else {
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+						ctx.beginPath();
+						ctx.stroke();
+						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+					}
+
+					//start switch
+					switch(Type) {
+						case "Hinge":
+							ctx.arc(absX + 0.5, absY + 0.5, 5, 0, 2 * Math.PI, false);
+							ctx.fillStyle = "white";
+							ctx.fill();
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							ctx.stroke();
+							//add it to AllParts
+							var Part = new Array;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "Hinge";
+							AllParts.push(Part);
+							ObjNum++;
+							break;
+						case "FixedJoint":
+							ctx.beginPath();
+							ctx.arc(absX + 0.5, absY + 0.5, 5, 0, 2 * Math.PI, false);
+							ctx.fillStyle = "black";
+							ctx.fill();
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							ctx.stroke();
+							//add it to AllParts
+							var Part = new Array;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "Hinge";
+							AllParts.push(Part);
+							ObjNum++;
+							break;
+						case "XSupport":
+							ctx.beginPath();
+							ctx.arc(absX, absY + 7, 7, 0, 2 * Math.PI, false);
+							ctx.fillStyle = "blue";
+							//ctx.fill();
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							ctx.stroke();
+							ctx.font = "bold 12px sans-serif";
+							ctx.textBaseline = "middle";
+							ctx.fillStyle = "black";
+							ctx.fillText("X", absX - 4, absY + 7.5);
+							//add it to AllParts
+							var Part = new Array;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "Hinge";
+							AllParts.push(Part);
+							ObjNum++;
+							break;
+						case "YSupport":
+							ctx.beginPath();
+							ctx.arc(absX, absY + 7, 7, 0, 2 * Math.PI, false);
+							ctx.fillStyle = "blue";
+							//ctx.fill();
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							ctx.stroke();
+							ctx.font = "bold 12px sans-serif";
+							ctx.textBaseline = "middle";
+							ctx.fillStyle = "black";
+							ctx.fillText("Y", absX - 4, absY + 7.5);
+							//add it to AllParts
+							var Part = new Array;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "Hinge";
+							AllParts.push(Part);
+							ObjNum++;
+							break;
+						case "PinSupport":
+							ctx.beginPath();
+							ctx.moveTo(absX - 0.5, absY - 0.5);
+							// give the (x,y) coordinates
+							ctx.lineTo(absX - 6.5, absY + 6.5);
+							ctx.lineTo(absX + 6.5, absY + 6.5);
+							ctx.lineTo(absX - 0.5, absY - 0.5);
+							ctx.fillStyle = "red";
+							//ctx.fill();
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							ctx.stroke();
+							//add it to AllParts
+							var Part = new Array;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "Hinge";
+							AllParts.push(Part);
+							ObjNum++;
+							break;
+						case "FixedSupport":
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							ctx.strokeRect(absX - 5.5, absY - 7.5, 11, 15);
+							//lines inside
+							ctx.beginPath();
+							ctx.moveTo(absX - 5.5, absY - 7.5);
+							ctx.lineTo(absX + 5.5, absY - 2.5);
+							ctx.moveTo(absX - 5.5, absY - 2.5);
+							ctx.lineTo(absX + 5.5, absY + 2.5);
+							ctx.moveTo(absX - 5.5, absY + 2.5);
+							ctx.lineTo(absX + 5.5, absY + 7.5);
+							ctx.stroke();
+							//add it to AllParts
+							var Part = new Array;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "Hinge";
+							AllParts.push(Part);
+							ObjNum++;
+							break;
+					}//end switch
+
+				}//end PointCreationHandler
+				//Start Real Point Creation
+				var block = Type + "-Block"
+				$('.' + block).css("background-color", "#ccc");
+				var gridcanvas = document.getElementById('GridCanvas');
+
+				$("#GridCanvas").bind('click.point', PointCreationHandler);
+
+				var CancelPointCreation = function(e) {
+					//if ESC is pressed
+					if(e.keyCode == 27) {
+						//unbind
+						$("#GridCanvas").unbind('click.point', PointCreationHandler);
+						//set colors right
+						$("." + block).css("background-color", "transparent");
+						$('#CommandBar').html("");
+						$(document).unbind('keydown.point', CancelPointCreation);
+					}
+				}
+				$(document).bind('keydown.point', CancelPointCreation);
+			}//end pointcreation
+
+			function CreateForce(Type) {
+				//If cancel is called
+				if(Type == "Cancel") {
+					//unbind everything
+					//$("#GridCanvas").unbind('mousemove', PointCreationTracker);
+					$("#GridCanvas").unbind('click.force', ForceCreationHandler);
+					//$(document).unbind('keydown.point', CancelPointCreation);
+					//unhighlight member block
+					$(".Tool-Box-Block-Canvas").css("background-color", "transparent");
+					$('#CommandBar').html("");
+					return 0;
+				}
+
+				//Force creation handler start
+				var ForceCreationHandler = function(evt) {
+					//prep for property
+					switch(Type) {
+						case "XForce":
+							var Part = new Array;
+							Part.type = "XForce"
+							Part.x1 = 0;
+							Part.y1 = 0;
+							Part.servx1 = 0;
+							Part.servy1 = 0;
+							Part.magnitude = 1;
+							AllParts.push(Part);
+							//alert(AllParts[ObjNum].x1);
+							var temparray = new Array;
+							temparray.push(ObjNum)
+							DisplayProperty(temparray);
+							break;
+						case "YForce":
+							var Part = new Array;
+							Part.type = "YForce"
+							Part.x1 = 0;
+							Part.y1 = 0;
+							Part.servx1 = 0;
+							Part.servy1 = 0;
+							Part.magnitude = 1;
+							AllParts.push(Part);
+							var temparray = new Array;
+							temparray.push(ObjNum)
+							DisplayProperty(temparray);
+							break;
+						case "MForce":
+							var Part = new Array;
+							Part.type = "MForce"
+							Part.x1 = 0;
+							Part.y1 = 0;
+							Part.servx1 = 0;
+							Part.servy1 = 0;
+							Part.magnitude = 1;
+							AllParts.push(Part);
+							var temparray = new Array;
+							temparray.push(ObjNum)
+							DisplayProperty(temparray);
+							break;
+					}//end switch for property
+
+					//prep for drawing
+					var mousePos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), window.DrawingHeight);
+					if(window.Snapping == "true") {
+						var firstX = mousePos.snapX;
+						var firstY = mousePos.snapY;
+
+						var absX = mousePos.AbsSnapX;
+						var absY = mousePos.AbsSnapY;
+					} else {
+						var firstX = (mousePos.adjustedX / 15).toFixed(3);
+						var firstY = (mousePos.adjustedY / 15).toFixed(3);
+
+						var absX = mousePos.absoluteX;
+						var absY = mousePos.absoluteY;
+					}
+
+					message = "Point Created at:" + firstX + "," + firstY;
+					$('#CommandBar').html(message);
+
+					//Check if there are existing canvas, if not create and get context, else clear
+					if(document.getElementById("obj" + window.ObjNum) == null) {
+						str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+						$(str1).appendTo($(".Obj-Canvas"));
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+					} else {
+						var obj = document.getElementById("obj" + window.ObjNum);
+						var ctx = obj.getContext("2d");
+						ctx.beginPath();
+						ctx.stroke();
+						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+					}
+
+					//start switch
+					switch(Type) {
+						case "XForce":
+							ctx.beginPath();
+							ctx.lineWidth = 2;
+							ctx.moveTo(absX, absY - 15);
+							ctx.lineTo(absX, absY);
+							ctx.moveTo(absX - 6, absY - 7);
+							ctx.lineTo(absX, absY);
+							ctx.moveTo(absX, absY);
+							ctx.lineTo(absX + 6, absY - 7);
+							ctx.stroke();
+							//Update AllParts
+							alert(ObjNum);
+							AllParts[ObjNum].x1 = absX;
+							AllParts[ObjNum].y1 = absX;
+							AllParts[ObjNum].servx1 = firstX;
+							AllParts[ObjNum].servy1 = firstY;
+							ObjNum++;
+							break;
+						case "YForce":
+							ctx.beginPath();
+							ctx.lineWidth = 2;
+							ctx.moveTo(absX - 15, absY);
+							ctx.lineTo(absX, absY);
+							ctx.moveTo(absX - 7, absY - 6);
+							ctx.lineTo(absX, absY);
+							ctx.moveTo(absX, absY);
+							ctx.lineTo(absX - 7, absY + 6);
+							ctx.stroke();
+							//Update AllParts
+							AllParts[ObjNum].x1 = absX;
+							AllParts[ObjNum].y1 = absX;
+							AllParts[ObjNum].servx1 = firstX;
+							AllParts[ObjNum].servy1 = firstY;
+							ObjNum++;
+							break;
+						case "MForce":
+							ctx.arc(absX, absY, 6, .5 * Math.PI, 2 * Math.PI, false);
+							ctx.lineWidth = 2;
+							ctx.stroke();
+							
+							ctx.beginPath();
+							ctx.moveTo(absX+2.5, absY+7.5);
+							ctx.lineTo(absX, absY);
+							ctx.moveTo(absX+2.5, absY+7.5);
+							ctx.lineTo(absX-5, absY+9);
+							ctx.stroke();
+							//Update AllParts
+							AllParts[ObjNum].x1 = absX;
+							AllParts[ObjNum].y1 = absX;
+							AllParts[ObjNum].servx1 = firstX;
+							AllParts[ObjNum].servy1 = firstY;
+							ObjNum++;
+							break;
+					}//end switch
+				}//end Force Creation Handler
+				//Start Real Force Creation
+				var block = Type + "-Block"
+				$('.' + block).css("background-color", "#ccc");
+				var gridcanvas = document.getElementById('GridCanvas');
+
+				//Bind
+				$("#GridCanvas").bind('click.force', ForceCreationHandler);
+
+				var CancelForceCreation = function(e) {
+					//if ESC is pressed
+					if(e.keyCode == 27) {
+						//unbind
+						$("#GridCanvas").unbind('click.force', ForceCreationHandler);
+						//set colors right
+						$("." + block).css("background-color", "transparent");
+						$('#CommandBar').html("");
+						$(document).unbind('keydown.force', CancelForceCreation);
+					}
+				}
+
+				$(document).bind('keydown.force', CancelForceCreation);
+
+			}//end Force Creation
 		</script>
 
-		<!--draw some shapes for the panel-->
-		<script type="text/javascript">
-			var MemberBlock = document.getElementsByName("MemberBlock");
-			var ctx = MemberBlock[0].getContext("2d");
-			ctx.moveTo(4, 21);
-			ctx.lineTo(38, 21);
-			ctx.stroke();
-		</script>
-
-		<!--Coordinate tracker 2-->
+		<!--Coordinate tracker-->
 		<script type="text/javascript">
 			function getMousePos(canvas, evt, ViewportScrollable, DrawingHeight) {
 				// get canvas position
@@ -689,13 +1358,19 @@
 					snapY = (adjustedY + 15 - (adjustedY % 15)) / 15
 				}
 
+				//Absolute position of Snap
+				var AbsSnapX = snapX * 15;
+				var AbsSnapY = (DrawingHeight - 1 - snapY * 15);
+
 				return {
 					absoluteX : (ViewportScrollable.scrollLeft() + mouseX),
 					absoluteY : (ViewportScrollable.scrollTop() + mouseY),
 					adjustedX : adjustedX,
 					adjustedY : adjustedY,
 					snapX : snapX,
-					snapY : snapY
+					snapY : snapY,
+					AbsSnapX : AbsSnapX,
+					AbsSnapY : AbsSnapY
 				};
 
 			}
