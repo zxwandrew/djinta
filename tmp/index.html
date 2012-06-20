@@ -23,7 +23,7 @@
 		<script type="text/javascript" src="file/jquery-1.7.2.min.js"></script>
 		<script type="text/javascript" src="file/modernizr-2.5.3.js"></script>
 		<script src="file/iphone-style-checkboxes.js" type="text/javascript" charset="utf-8"></script>
-
+		<script type="text/javascript" src="file/jquery.json-2.3.min.js"></script>
 		<!--
 		<script type="text/javascript" src="file/jquery.event.drag.live-2.2.js"></script>-->
 		<script type="text/javascript" src="file/jquery.event.drag-2.2.js"></script>
@@ -34,6 +34,7 @@
 			var ObjNum = 0;
 			var Snapping = 'false';
 			var AllParts = new Array;
+			var AllPartsJSON;
 			var pastselect = new Array;
 
 			function NearPart(AbsCoordX, AbsCoordY) {
@@ -449,7 +450,7 @@
 							<a href="#">New</a>
 						</li>
 						<li>
-							<a href="#">Saving</a>
+							<a href="#" onclick="javascript:SaveDrawing()">Save</a>
 						</li>
 					</ul>
 				</li>
@@ -886,7 +887,8 @@
 						part.i = 100;
 						part.area = 10;
 						AllParts.push(part);
-						localStorage["part" + window.ObjNum] = JSON.stringify(part);
+						
+						//localStorage["part" + window.ObjNum] = JSON.stringify(part);
 
 						//alert(JSON.parse(localStorage["part"+window.ObjNum]).x1 );
 
@@ -1010,7 +1012,7 @@
 							ctx.strokeStyle = "black";
 							ctx.stroke();
 							//add it to AllParts
-							var Part = new Array;
+							var Part = new Object;
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
@@ -1028,7 +1030,7 @@
 							ctx.strokeStyle = "black";
 							ctx.stroke();
 							//add it to AllParts
-							var Part = new Array;
+							var Part = new Object;
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
@@ -1050,7 +1052,7 @@
 							ctx.fillStyle = "black";
 							ctx.fillText("X", absX - 4, absY + 7.5);
 							//add it to AllParts
-							var Part = new Array;
+							var Part = new Object;
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
@@ -1072,7 +1074,7 @@
 							ctx.fillStyle = "black";
 							ctx.fillText("Y", absX - 4, absY + 7.5);
 							//add it to AllParts
-							var Part = new Array;
+							var Part = new Object;
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
@@ -1094,7 +1096,7 @@
 							ctx.strokeStyle = "black";
 							ctx.stroke();
 							//add it to AllParts
-							var Part = new Array;
+							var Part = new Object;
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
@@ -1117,7 +1119,7 @@
 							ctx.lineTo(absX + 5.5, absY + 7.5);
 							ctx.stroke();
 							//add it to AllParts
-							var Part = new Array;
+							var Part = new Object;
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
@@ -1168,7 +1170,7 @@
 					//prep for property
 					switch(Type) {
 						case "XForce":
-							var Part = new Array;
+							var Part = new Object;
 							Part.type = "XForce"
 							Part.x1 = 0;
 							Part.y1 = 0;
@@ -1182,7 +1184,7 @@
 							DisplayProperty(temparray);
 							break;
 						case "YForce":
-							var Part = new Array;
+							var Part = new Object;
 							Part.type = "YForce"
 							Part.x1 = 0;
 							Part.y1 = 0;
@@ -1195,7 +1197,7 @@
 							DisplayProperty(temparray);
 							break;
 						case "MForce":
-							var Part = new Array;
+							var Part = new Object;
 							Part.type = "MForce"
 							Part.x1 = 0;
 							Part.y1 = 0;
@@ -1255,7 +1257,6 @@
 							ctx.lineTo(absX + 6, absY - 7);
 							ctx.stroke();
 							//Update AllParts
-							alert(ObjNum);
 							AllParts[ObjNum].x1 = absX;
 							AllParts[ObjNum].y1 = absX;
 							AllParts[ObjNum].servx1 = firstX;
@@ -1373,6 +1374,14 @@
 					AbsSnapY : AbsSnapY
 				};
 
+			}
+		</script>
+		
+		<script type="text/javascript">
+			function SaveDrawing(){
+				window.AllPartsJSON = $.toJSON( AllParts );
+				//alert(AllPartsJSON);
+				localStorage["drawing"] = AllPartsJSON;
 			}
 		</script>
 
