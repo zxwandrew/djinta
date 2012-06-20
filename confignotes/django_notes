@@ -12,4 +12,6 @@ https://docs.djangoproject.com/en/dev/intro/tutorial01/
 
 from drawings.models import Drawing
 
+export PYTHON_EGG_CACHE=/tmp
 
+MPLCONFIGDIR

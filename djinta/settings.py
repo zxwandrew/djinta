@@ -92,7 +92,7 @@ SECRET_KEY = '%=11x%^_0kd78*t+(br-ua=xzr5sbf#ab%z!mm+#2jmhq(3e6@'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -117,6 +117,15 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
+#Added here for ajaxice
+TEMPLATE_CONTEXT_PROCESSORS = ("django.contrib.auth.context_processors.auth",
+                               "django.core.context_processors.debug",
+                               "django.core.context_processors.i18n",
+                               "django.core.context_processors.media",
+                               "django.core.context_processors.static",
+                               "django.core.context_processors.request",
+                               "django.contrib.messages.context_processors.messages")
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -129,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
+    'dajaxice',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -159,3 +169,6 @@ LOGGING = {
         },
     }
 }
+
+#For dajaxice media prefix
+DAJAXICE_MEDIA_PREFIX='dajaxice'

@@ -1,3 +1,5 @@
+{% load dajaxice_templatetags %}
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -19,6 +21,9 @@
 		
 		<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
 		<link rel="shortcut icon" href="static/favicon.ico" />
+		<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>
+		
+		{% dajaxice_js_import %}
 
 	</head>
 
@@ -32,11 +37,25 @@
 					<a href="/">Home</a>
 				</p>
 				<p>
-					<a href="/contact">Contact</a>
+					<a href="drawings/create">Contact</a>
 				</p>
 			</nav>
 
-			<div>
+			<div><h1>Create temp drawing</h1><br/>
+				
+				
+				<form action="" method="POST" accept-charset="utf-8">
+					{%csrf_token%}
+					
+					{{ formset.management_form }}
+				    {% for form in formset %}
+				        {{ form.id }}
+				        <ul>
+				            <li>{{ form.drawingpart }}</li>
+				        </ul>
+				    {% endfor %}
+					<input type="submit"/>
+				</form>
 
 			</div>
 

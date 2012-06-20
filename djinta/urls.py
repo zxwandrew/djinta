@@ -1,4 +1,7 @@
 from django.conf.urls import patterns, include, url
+from django.conf import settings
+from dajaxice.core import dajaxice_autodiscover
+dajaxice_autodiscover()
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -15,6 +18,8 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),   
     url(r'^drawings/', include('drawings.urls')),
-    url(r'^$', 'drawings.views.create'),
+    (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
+    (r'^charts/simple.png$', 'drawings.calc.simple'),
+    #url(r'^$', 'drawings.views.create'),
 
 )
