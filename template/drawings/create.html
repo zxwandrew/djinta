@@ -44,18 +44,7 @@
 			<div><h1>Create temp drawing</h1><br/>
 				
 				
-				<form action="" method="POST" accept-charset="utf-8">
-					{%csrf_token%}
-					
-					{{ formset.management_form }}
-				    {% for form in formset %}
-				        {{ form.id }}
-				        <ul>
-				            <li>{{ form.drawingpart }}</li>
-				        </ul>
-				    {% endfor %}
-					<input type="submit"/>
-				</form>
+				
 
 			</div>
 

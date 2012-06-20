@@ -15,3 +15,17 @@ from drawings.models import Drawing
 export PYTHON_EGG_CACHE=/tmp
 
 MPLCONFIGDIR
+
+
+<form action="" method="POST" accept-charset="utf-8">
+					{%csrf_token%}
+					
+					{{ formset.management_form }}
+				    {% for form in formset %}
+				        {{ form.id }}
+				        <ul>
+				            <li>{{ form.drawingpart }}</li>
+				        </ul>
+				    {% endfor %}
+					<input type="submit"/>
+				</form>
