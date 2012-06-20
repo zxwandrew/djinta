@@ -1,0 +1,46 @@
+{% load dajaxice_templatetags %}
+<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>
+{% dajaxice_js_import %}
+
+<!--<input type='button' onclick="Dajaxice.drawings.myexample(my_js_callback);" value='hihi'/>-->
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+
+<form id='my_form' accept-charset="utf-8">
+	<input type='text' name='DP'/>
+	<input type='button' onclick='send_form()' value='Submit'/>
+</form>
+
+<script>
+	$.fn.serializeObject = function()
+{
+   var o = {};
+   var a = this.serializeArray();
+   $.each(a, function() {
+       if (o[this.name]) {
+           if (!o[this.name].push) {
+               o[this.name] = [o[this.name]];
+           }
+           o[this.name].push(this.value || '');
+       } else {
+           o[this.name] = this.value || '';
+       }
+   });
+   return o;
+};
+
+	function my_js_callback(data) {
+		alert(data.message);
+	}
+
+	function send_form() {
+		//var data = $('#my_form').serializeArray();
+		//var jdata = JSON.stringify(data);
+		//alert(data);
+		//alert(jdata);
+		var data=JSON.stringify($('#my_form').serializeObject());
+		alert(data);
+		Dajaxice.drawings.send_form(my_js_callback, {
+			'form' : data
+		});
+	}
+</script>
