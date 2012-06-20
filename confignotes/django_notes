@@ -29,3 +29,14 @@ MPLCONFIGDIR
 				    {% endfor %}
 					<input type="submit"/>
 				</form>
+				
+
+Outside Library/module/scripts used:
+numpy, Scipy, matplotlib
+sympy
+simplejson
+dajaxice
+jquery
+jquery-drag
+jquery - menu thing
+jquery - array to json thing

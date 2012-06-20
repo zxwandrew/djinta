@@ -1,2 +1,322 @@
-body {
+@font-face {
+    font-family: 'FundamentalBrigadeRegular';
+    src: url('fundamental_brigade-webfont.eot');
+    src: url('fundamental_brigade-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fundamental_brigade-webfont.woff') format('woff'),
+         url('fundamental_brigade-webfont.ttf') format('truetype'),
+         url('fundamental_brigade-webfont.svg#FundamentalBrigadeRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
 }
+
+body{
+	background: #800f0f;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size:11px;
+	color:#fff;
+	overflow-x:hidden;
+	margin: 0;
+}
+#DrawingBody{
+	background: #ccc;
+}
+
+h1{
+    font-family: 'FundamentalBrigadeRegular';
+    font-size: 300px;
+    margin: 0px;
+    padding-top: 130px;
+}
+.h1green{
+    color: #5edd00;
+    text-shadow: 1px 12px 15px #000000;
+    filter: dropshadow(color=#000000, offx=1, offy=3);
+        
+}
+.h1gold{
+    color: #ffde00;
+    text-shadow: 1px 12px 15px #000000;
+    filter: dropshadow(color=#000000, offx=1, offy=3);
+}
+h2{
+    font-family: 'FundamentalBrigadeRegular';
+     font-size: 120px;
+     margin-top: 10px;
+     color: #dbdee0;
+     
+     text-shadow: 1px 8px 8px #000000;
+    filter: dropshadow(color=#000000, offx=1, offy=3);
+}
+h4{
+    font-family: 'FundamentalBrigadeRegular';
+    font-size: 40px;
+    margin: 0;
+    color: #dbdee0;
+    text-shadow: 1px 6px 6px #000000;
+    filter: dropshadow(color=#000000, offx=1, offy=3);
+}
+
+p{
+	font-size: 2em;
+}
+#main_placeholder{
+    width:1000px;
+    height: 700px;
+    margin: 0 auto;
+    text-align: center;
+    
+    background: rgb(223,26,26); /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY3g9IjUwJSIgY3k9IjUwJSIgcj0iNzUlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNkZjFhMWEiIHN0b3Atb3BhY2l0eT0iMSIvPgogICAgPHN0b3Agb2Zmc2V0PSI2MSUiIHN0b3AtY29sb3I9IiM4MDBmMGYiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPHJlY3QgeD0iLTUwIiB5PSItNTAiIHdpZHRoPSIxMDEiIGhlaWdodD0iMTAxIiBmaWxsPSJ1cmwoI2dyYWQtdWNnZy1nZW5lcmF0ZWQpIiAvPgo8L3N2Zz4=);
+    background: -moz-radial-gradient(center, ellipse cover,  rgb(223,26,26) 0%, rgb(128,15,15) 61%); /* FF3.6+ */
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%,rgb(223,26,26)), color-stop(61%,rgb(128,15,15))); /* Chrome,Safari4+ */
+    background: -webkit-radial-gradient(center, ellipse cover,  rgb(223,26,26) 0%,rgb(128,15,15) 61%); /* Chrome10+,Safari5.1+ */
+    background: -o-radial-gradient(center, ellipse cover,  rgb(223,26,26) 0%,rgb(128,15,15) 61%); /* Opera 12+ */
+    background: -ms-radial-gradient(center, ellipse cover,  rgb(223,26,26) 0%,rgb(128,15,15) 61%); /* IE10+ */
+    background: radial-gradient(center, ellipse cover,  rgb(223,26,26) 0%,rgb(128,15,15) 61%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#df1a1a', endColorstr='#800f0f',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+
+nav{
+	font-size: 1.5em;
+	display: block;
+	margin: 0 auto 1px;
+	background-color: #333333;
+	position:relative;
+    
+}
+
+nav ul{
+	padding: 0;
+	margin: 0;
+}
+nav li {
+	position:relative;
+	float: left;
+	list-style-type: none;
+	background-color: #333;
+}
+
+
+nav ul:after { content:"."; display:block; height:0; clear:both; visibility:hidden; }
+nav li a { display:block; padding:5px 10px; text-decoration:none; color: white;}
+nav li a:focus { outline:none; text-decoration:underline; }
+nav li:first-child a { border-left:none; }
+nav li.last a { border-right:none; }
+nav a span { display:block; float:right; margin-left:5px; }
+nav ul ul { display:none;position:absolute; left:0; background:#6a6a6a; z-index: 2;}
+nav ul ul li { float:none; }
+nav ul ul a { padding:5px 10px; border-left:none; border-right:none;}
+nav ul ul a:hover { background-color:#555; }
+
+
+label.iPhoneCheckLabelOn{color:#FFF;background:url(images/iphone-style-checkboxes/on.png?1284697268) no-repeat;text-shadow:0 0 2px rgba(0,0,0,0.6);left:0;padding-top:5px}
+label.iPhoneCheckLabelOff{color:#8b8b8b;background:url(images/iphone-style-checkboxes/off.png?1284697268) no-repeat right 0;text-shadow:0 0 2px rgba(255,255,255,0.6);text-align:right;right:0}
+.iPhoneCheckHandle{display:block;height:27px;cursor:pointer;position:absolute;top:0;left:0;width:0;background:url(images/iphone-style-checkboxes/slider_left.png?1284697268) no-repeat;padding-left:3px}
+.iPhoneCheckHandleRight{height:100%;width:100%;padding-right:3px;background:url(images/iphone-style-checkboxes/slider_right.png?1284697268) no-repeat right 0}
+.iPhoneCheckHandleCenter{height:100%;width:100%;background:url(images/iphone-style-checkboxes/slider_center.png?1284697268)}
+label.iOSCheckLabelOn{color:#FFF;background:url(images/ios-style-checkboxes/on.png?1284697268) no-repeat;text-shadow:0 0 2px rgba(0,0,0,0.6);left:0;padding-top:5px}
+label.iOSCheckLabelOff{color:#8b8b8b;background:url(images/ios-style-checkboxes/off.png?1284697268) no-repeat right 0;text-shadow:0 0 2px rgba(255,255,255,0.6);text-align:right;right:0}
+.iOSCheckHandle{display:block;height:27px;cursor:pointer;position:absolute;top:0;left:0;width:0;background:url(images/ios-style-checkboxes/slider_left.png?1284697268) no-repeat;padding-left:3px}
+.iOSCheckHandleRight{height:100%;width:100%;padding-right:3px;background:url(images/ios-style-checkboxes/slider_right.png?1284697268) no-repeat right 0}
+.iOSCheckHandleCenter{height:100%;width:100%;background:url(images/ios-style-checkboxes/slider_center.png?1284697268)}
+.iPhoneCheckContainer,.iOSCheckContainer{position:relative;height:27px;cursor:pointer;overflow:hidden}
+.iPhoneCheckContainer input,.iOSCheckContainer input{position:absolute;top:5px;left:30px;filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=0);opacity:0}
+.iPhoneCheckContainer label,.iOSCheckContainer label{white-space:nowrap;font-size:17px;line-height:17px;font-weight:700;font-family:"Helvetica Neue", Arial, Helvetica, sans-serif;cursor:pointer;display:block;height:27px;position:absolute;width:auto;top:0;padding-top:5px;overflow:hidden}
+.iPhoneCheckContainer,.iPhoneCheckContainer label,.iOSCheckContainer,.iOSCheckContainer label{user-select:none;-moz-user-select:none;-khtml-user-select:none}
+.iPhoneCheckDisabled,.iOSCheckDisabled{filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=50);opacity:0.5}
+label.iPhoneCheckLabelOn span,label.iOSCheckLabelOn span{padding-left:8px}
+label.iPhoneCheckLabelOff span,label.iOSCheckLabelOff span{padding-right:8px}
+
+
+
+.Drawing-Interface{
+	left: 0;
+	right: 0;
+	top: 31px;
+	bottom: 31px;
+    overflow: hidden;
+    position:absolute;
+}
+
+.Tool-Bar{
+	border-right: 2px solid #aaa;
+	width: 200px;
+	bottom: 0;
+	top: 0;
+	position: absolute;
+	background: none repeat scroll 0 0 #E6E6E6;
+    height: auto;
+    left: 0;
+    top: 0;
+    overflow: visible;
+}
+
+.Tool-Bar-Slider{
+	bottom: 0;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    
+}
+
+.Scrollable{
+	overflow-x: hidden;
+	overflow-y:auto;
+}
+
+.Tool-Bar-Slider .Panel{
+	background: none repeat scroll 0 0 #F2F2F2;
+    border-bottom: 2px solid #444444;
+    position: relative;
+}
+
+.Tool-Bar-Slider .Panel h3{
+	color: black;
+	margin: 0;
+}
+
+.Tool-Box-Block-Canvas{
+	color: rgba(255,255,255,0.2)
+}
+
+.PanelContent a{
+	text-decoration:none;
+}
+
+#StrucutralPanel{
+	height: auto;
+}
+#SnapSwitchContent{
+	margin-left: 40px;
+}
+
+.Viewport-Container{
+	background-color: #e6e6e6;
+	position: absolute;
+	left: 203px;
+	width: auto;
+	height: auto;
+    bottom: 0;
+    right: 0;
+    top: 0;
+}
+
+.Viewport-Scrollable{
+	width: auto;
+    height: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    overflow: scroll;
+    position: absolute;
+    z-index: 0;
+}
+.Viewport{
+	cursor: default;
+	min-height: 100%;
+	position: relative;
+	min-height:100%;
+	z-index:100;
+}
+
+
+.Inline-Hint-Canvas{
+	bottom: 0;
+    height: auto;
+    left: 0;
+    opacity: 0.5;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+    z-index: 1;
+}
+.Drawing-Canvas{
+	top: 10px;
+	left: 10px;
+	overflow: visible;
+    position: absolute;
+    background: none repeat scroll 0 0 #FFFFFF;
+    height: 990px;
+    width: 765px;
+}
+.Grid-Canvas{
+	top: 0px;
+	left: 0px;
+	overflow: visible;
+    position: absolute;
+    background: none repeat scroll 0 0;
+    background-color: rgba(255,255,255,0.1);
+    z-index:5;
+}
+.Obj-Canvas{
+	top: 0px;
+	left: 0px;
+	overflow: visible;
+    position: absolute;
+    background: none repeat scroll 0 0 #FFFFFF;
+    width: 100%;
+    height: 100%;
+}
+
+.Bottom-Bar{
+    color: #BFBFBF;
+    font-size: 12px;
+    height: 30px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    text-shadow: 0 -1px 0 #000000;
+    width: auto;
+    background-color: #000;
+    bottom: 0;
+}
+#CoordinateBar{
+	width: 190px;
+	float: left;
+}
+
+#CommandBar{
+	float:left;
+}
+.Property-Bar{
+	width:100px; 
+	height: 100%;
+	float:right; 
+	background-color: #f2f2f2;
+	color: #555;
+	visibility: hidden;
+	position: relative;
+	z-index: 999;
+}
+.Property-Bar p{
+	margin:0;
+	font-size: 1.5em;
+}
+.Property-Bar h4{
+	margin:0;
+	font-size: 2em;
+	text-shadow: 0px 0px 0px;
+	color: #555;
+}
+.Property-Textbox{
+	width: 90px;
+}
+.Drag-Selection{
+	background-color: red;
+	z-index: 10;
+	position: absolute;
+}
+
+
+
+
+
+
