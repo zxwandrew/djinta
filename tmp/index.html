@@ -528,8 +528,8 @@
 						<h3>Force Panel</h3>
 						<div class="PanelContent" id="ForcePanelContent">
 							<!--Truss Block-->
-							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('XForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable XForce-Block" name="XForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('YForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable YForce-Block" name="YForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('XForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable XForce-Block" name="XForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('MForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MForce-Block" name="MForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateDistributedForce();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable DForce-Block" name="DForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 
@@ -1035,7 +1035,7 @@
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
-							Part.type = "Hinge";
+							Part.type = "FixedJoint";
 							AllParts.push(Part);
 							ObjNum++;
 							break;
@@ -1057,7 +1057,7 @@
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
-							Part.type = "Hinge";
+							Part.type = "XSupport";
 							AllParts.push(Part);
 							ObjNum++;
 							break;
@@ -1079,7 +1079,7 @@
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
-							Part.type = "Hinge";
+							Part.type = "YSupport";
 							AllParts.push(Part);
 							ObjNum++;
 							break;
@@ -1101,7 +1101,7 @@
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
-							Part.type = "Hinge";
+							Part.type = "PinSupport";
 							AllParts.push(Part);
 							ObjNum++;
 							break;
@@ -1124,7 +1124,7 @@
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
-							Part.type = "Hinge";
+							Part.type = "FixedSupport";
 							AllParts.push(Part);
 							ObjNum++;
 							break;
@@ -1169,9 +1169,9 @@
 				var ForceCreationHandler = function(evt) {
 					//prep for property
 					switch(Type) {
-						case "XForce":
+						case "YForce":
 							var Part = new Object;
-							Part.type = "XForce"
+							Part.type = "YForce"
 							Part.x1 = 0;
 							Part.y1 = 0;
 							Part.servx1 = 0;
@@ -1183,9 +1183,9 @@
 							temparray.push(ObjNum)
 							DisplayProperty(temparray);
 							break;
-						case "YForce":
+						case "XForce":
 							var Part = new Object;
-							Part.type = "YForce"
+							Part.type = "XForce"
 							Part.x1 = 0;
 							Part.y1 = 0;
 							Part.servx1 = 0;
@@ -1246,7 +1246,7 @@
 
 					//start switch
 					switch(Type) {
-						case "XForce":
+						case "YForce":
 							ctx.beginPath();
 							ctx.lineWidth = 2;
 							ctx.moveTo(absX, absY - 15);
@@ -1263,7 +1263,7 @@
 							AllParts[ObjNum].servy1 = firstY;
 							ObjNum++;
 							break;
-						case "YForce":
+						case "XForce":
 							ctx.beginPath();
 							ctx.lineWidth = 2;
 							ctx.moveTo(absX - 15, absY);
