@@ -145,6 +145,176 @@
 				}
 			}
 
+			//NOT COMPLETE YET!!!!
+			function UpdateDForceProperty(form, match) {
+				var matchingselected = match.split("X");
+				for( j = 0; j < matchingselected.length; j++) {
+					AllParts[matchingselected[j]].f1 = form.f1.value;
+					AllParts[matchingselected[j]].f2 = form.f2.value;
+
+					AllParts[matchingselected[j]].r1 = form.r1.value;
+					AllParts[matchingselected[j]].r2 = form.r2.value;
+					AllParts[matchingselected[j]].direction = form.direction.value;
+
+					
+					f1 = form.f1.value;
+					f2 = form.f2.value;
+					r1 = form.r1.value;
+					r2 = form.r2.value;
+					direction = form.direction.value
+					
+
+					//get canvas
+					var obj = document.getElementById("obj" + matchingselected[j]);
+					var ctx = obj.getContext("2d");
+					ctx.beginPath();
+					ctx.stroke();
+					ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+
+					//start drawing
+					ctx.lineWidth = 3;
+					if(direction=='Global-Y'){
+						ctx.strokeStyle="Red"						
+					}else if(direction=='Global-X'){
+						ctx.strokeStyle='Orange'
+					}else if(direction=='Local-Y'){
+						ctx.strokeStyle='Green'	
+					}else if(direction=='Local-X'){
+						ctx.strokeStyle='Purple'
+					}
+					
+					x1 = Math.min(AllParts[AllParts[matchingselected[j]].onmember].x1, AllParts[AllParts[matchingselected[j]].onmember].x2)
+					x2 = Math.max(AllParts[AllParts[matchingselected[j]].onmember].x1, AllParts[AllParts[matchingselected[j]].onmember].x2)
+					if(Math.min(AllParts[AllParts[matchingselected[j]].onmember].x1, AllParts[AllParts[matchingselected[j]].onmember].x2) == AllParts[AllParts[matchingselected[j]].onmember].x1) {
+						y1 = AllParts[AllParts[matchingselected[j]].onmember].y1
+						y2 = AllParts[AllParts[matchingselected[j]].onmember].y2
+					} else {
+						y1 = AllParts[AllParts[matchingselected[j]].onmember].y2
+						y2 = AllParts[AllParts[matchingselected[j]].onmember].y1
+					}
+					var slope = (y2 - y1) / (x2 - x1);
+
+					//start point
+					X44 = Math.sqrt(Math.pow((r1*15), 2) / (1 + (Math.pow((slope), 2))))
+					Y44 = X44 * slope
+					if(slope == 0) {
+						X44 = 1*r1*15
+						Y44 = 0
+					} else if(slope == Number.POSITIVE_INFINITY) {
+						X44 = 0
+						Y44 = 1*r1*15
+					} else if(slope == Number.NEGATIVE_INFINITY) {
+						X44 = 0
+						Y44 = -r1*15
+					}					
+					x1=x1+X44
+					y1=y1+Y44
+								
+					
+					//how much to move?
+					if(f1>f2){
+						leftheight=45
+						rightheight=15
+					}else if(f1<f2){
+						rightheight=45
+						leftheight=15
+					}else{
+						leftheight=15
+						rightheight=15
+					}
+					length=Math.abs(r1-r2)*15
+					totallength=Math.sqrt(Math.pow((Math.abs(x1-x2)),2)+Math.pow((Math.abs(y1-y2)),2))
+					if(r1<0){
+						r1=0
+					}
+					if((r1*15+length)>totallength){
+						length=totallength-r1
+					}
+					
+					//first turn
+					X12 = Math.sqrt(Math.pow(leftheight, 2) / (1 + (Math.pow((1 / (-1 * slope)), 2))))
+					Y12 = X12 * (1 / (-1 * slope))
+					if(slope == 0) {
+						X12 = 0
+						Y12 = -1*leftheight
+					} else if(slope == Number.POSITIVE_INFINITY) {
+						X12 = -1*leftheight
+						Y12 = 0
+					} else if(slope == Number.NEGATIVE_INFINITY) {
+						X12 = leftheight
+						Y12 = 0
+					}
+					
+					//get the distance
+					X21 = Math.sqrt(Math.pow(length, 2) / (1 + (Math.pow((slope), 2))))
+					Y21 = X21 * slope
+					if(slope == Number.POSITIVE_INFINITY) {
+						X21 = 0
+						Y21 = length
+					} else if(slope == Number.NEGATIVE_INFINITY) {
+						X21 = 0
+						Y21 = -1*length
+					}
+					
+					//second turn
+					X22 = Math.sqrt(Math.pow(rightheight, 2) / (1 + (Math.pow((1 / (-1 * slope)), 2))))
+					Y22 = X22 * (1 / (-1 * slope))
+					if(slope == 0) {
+						X22 = 0
+						Y22 = -1*rightheight
+					} else if(slope == Number.POSITIVE_INFINITY) {
+						X22 = -1*rightheight
+						Y22 = 0
+					} else if(slope == Number.NEGATIVE_INFINITY) {
+						X22 = rightheight
+						Y22 = 0
+					}
+					//draw box
+					ctx.beginPath();
+					ctx.moveTo(x1, y1);
+					if(y1 > y2) {
+						ctx.lineTo(x1 - X12, y1 - Y12);
+						ctx.moveTo(x1 + X21, y1 + Y21);
+						ctx.lineTo(x1+X21-X22, y1+Y21-Y22);
+						ctx.lineTo(x1 - X12, y1 - Y12)
+					} else {
+						ctx.lineTo(x1 + X12, y1 + Y12);
+						ctx.moveTo(x1 + X21, y1 + Y21);
+						ctx.lineTo(x1+X21+X22, y1+Y21+Y22);
+						ctx.lineTo(x1 + X12, y1 + Y12)
+					}
+					ctx.stroke();
+					//end box
+					
+					//draw lines
+					if(direction=='Global-Y'){
+						for(i=1;i<((length/15))+1;i++){
+							X33 = Math.sqrt(Math.pow(i*15, 2) / (1 + (Math.pow((slope), 2))))
+							Y33 = X33 * slope
+							if(slope == Number.POSITIVE_INFINITY) {
+								X33 = 0
+								Y33 = i*15
+							} else if(slope == Number.NEGATIVE_INFINITY) {
+								X33 = 0
+								Y33 = -15*i
+							}
+							ctx.beginPath();
+							ctx.moveTo(x1+X33, y1+Y33);
+							ctx.lineTo(x1+X33, y1+Y33-15);
+							ctx.stroke()
+						}
+						
+					}else if(direction=='GlobalX'){
+						
+					}else if(direction=='LocalY'){
+						
+					}else if(direction=='LocalX'){
+						
+					}
+
+				}
+			}
+
 			function UpdateForceProperty(form, match) {
 				var matchingselected = match.split("X");
 				for( j = 0; j < matchingselected.length; j++) {
@@ -173,7 +343,7 @@
 						}
 					}
 
-					//check if one or all
+					//check if one or all and create message
 					if(matchingselected.length == 1) {
 						var displaymessage = '<h4>Properties</h4><p>Editing: ' + selected[0] + '</p><br/> <form> i: <input class="Property-Textbox" type="text" name="i" value="' + i + '"/>';
 					} else {
@@ -193,7 +363,7 @@
 					$('#PropertyBar').html(displaymessage);
 				}//end member selection
 				
-				else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == "YForce" || AllParts[selected[0]].type == "MForce") {
+else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == "YForce" || AllParts[selected[0]].type == "MForce") {
 
 					var matchingselected = new Array;
 					var displaymessage = '<h4>Properties</h4><p>Editing Forces: ';
@@ -205,11 +375,65 @@
 					}
 					displaymessage += '</p><br/> <form> Magnitude: <input class="Property-Textbox" type="text" name="magnitude" value="' + AllParts[selected[0]].magnitude + '"/>';
 					var tempselected = "'" + matchingselected.join('X') + "'";
-					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateForceProperty(this.form, ' + tempselected + ')"/></form>';
+					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateDForceProperty(this.form, ' + tempselected + ')"/></form>';
 					$('#PropertyBar').html(displaymessage);
 
 				}
 				//end force selection
+
+				//start D Force Selection
+				else if(AllParts[selected[0]].type == 'DForce') {
+					var matchingselected = new Array;
+					var f1 = AllParts[selected[0]].f1
+					var f2 = AllParts[selected[0]].f2
+					var r1 = AllParts[selected[0]].r1
+					var r2 = AllParts[selected[0]].r2
+					var direction = AllParts[selected[0]].direction
+
+					//check if they all have the same property, if not break and return first
+					for( j = 0; j < selected.length; j++) {
+						if(f1 != AllParts[selected[j]].f1 || f2 != AllParts[selected[j]].f2 || direction != AllParts[selected[j]].direction) {
+							matchingselected[0] = selected[0];
+							break;
+						} else {
+							matchingselected[j] = selected[j];
+						}
+					}
+
+					//check one or all and create message
+					if(matchingselected.length == 1) {
+						var displaymessage = '<h4>Properties</h4><p>Editing: ' + selected[0] + 'on member ' + AllParts[selected[0]].onmember + '<br/> <form> Start Magnitude: <input class="Property-Textbox" type="text" name="f1" value="' + f1 + '"/>';
+					} else {
+						var displaymessage = '<h4>Properties</h4><p>Editing: ';
+						for( k = 0; k < matchingselected.length; k++) {
+							displaymessage += selected[k] + 'on member' + AllParts[selected[k]].onmember + '<br/>';
+						}
+						displaymessage += '</p><br/> <form> Start Magnitude: <input class="Property-Textbox" type="text" name="f1" value="' + f1 + '"/>';
+					}
+					//modify matchingselected so it is passable
+					var tempselected = "'" + matchingselected.join('X') + "'";
+
+					//Generate form
+					displaymessage += 'End Magnitude: <input class="Property-Textbox" type="text" name="f2" value="' + f2 + '"/>';
+					displaymessage += 'Position <br/>(Relative to Member)<br/> Start Point: <input class="Property-Textbox" type="text" name="r1" value="' + r1 + '"/><br/>';
+					displaymessage += 'End Point: <input class="Property-Textbox" type="text" name="r2" value="' + r2 + '"/><br/>';
+					//Generate the dropdown list
+					DirectionArray = ["Global-Y", "Global-X", "Local-Y", "Local-X"]
+					displaymessage += 'Orientation: <select class="Property-Textbox" name="direction" value="' + direction + '">';
+					for( l = 0; l < DirectionArray.length; l++) {
+						if(direction == DirectionArray[l]) {
+							displaymessage += '<option value="' + DirectionArray[l] + '" selected>' + DirectionArray[l] + '</option>'
+						} else {
+							displaymessage += '<option value="' + DirectionArray[l] + '">' + DirectionArray[l] + '</option>'
+						}
+					}
+					displaymessage += '</select><br/>';
+
+					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateDForceProperty(this.form, ' + tempselected + ')"/></form>';
+					$('#PropertyBar').html(displaymessage);
+
+				}
+				//END D force selection
 
 			}
 
@@ -246,7 +470,7 @@
 			}
 
 			//select with click (multi with shift)
-			function ClickSelect() {
+			function ClickSelect(status) {
 				var gridcanvas = document.getElementById('GridCanvas');
 				var context = gridcanvas.getContext('2d');
 				var shifted = 0;
@@ -279,7 +503,11 @@
 						HideProperty();
 					}
 				}
-				$("#GridCanvas").bind('click', ClickHandler);
+				if(status == 'Cancel') {
+					$("#GridCanvas").unbind('click', ClickHandler);
+				} else {
+					$("#GridCanvas").bind('click', ClickHandler);
+				}
 
 				var DeleteHandler = function(e) {
 					if(e.keyCode == 46) {
@@ -378,8 +606,8 @@
 				var gridcanvas = document.getElementById('GridCanvas');
 				var context = gridcanvas.getContext('2d');
 
-				gridcanvas.addEventListener('mousemove', function(evt) {
-					var mousePos = getMousePos(gridcanvas, evt, $(".Viewport-Scrollable"), DrawingHeight);
+				gridcanvas.addEventListener('mousemove', function(evt1) {
+					var mousePos = getMousePos(gridcanvas, evt1, $(".Viewport-Scrollable"), DrawingHeight);
 					//divide by 15?
 					var adjustedX = (mousePos.adjustedX / 15).toFixed(3);
 					var adjustedY = (mousePos.adjustedY / 15).toFixed(3);
@@ -531,7 +759,7 @@
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('YForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable YForce-Block" name="YForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('XForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable XForce-Block" name="XForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('MForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MForce-Block" name="MForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
-							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateDistributedForce();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable DForce-Block" name="DForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
+							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateDForce();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable DForce-Block" name="DForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
 
 						</div>
 
@@ -659,7 +887,7 @@
 			ctx.lineTo(31, 35);
 			ctx.stroke();
 
-			var block = document.getElementsByName("XForceBlock");
+			var block = document.getElementsByName("YForceBlock");
 			var ctx = block[0].getContext("2d");
 			ctx.beginPath();
 			ctx.lineWidth = 2;
@@ -671,7 +899,7 @@
 			ctx.lineTo(21, 32);
 			ctx.stroke();
 
-			var block = document.getElementsByName("YForceBlock");
+			var block = document.getElementsByName("XForceBlock");
 			var ctx = block[0].getContext("2d");
 			ctx.beginPath();
 			ctx.lineWidth = 2;
@@ -887,7 +1115,7 @@
 						part.i = 100;
 						part.area = 10;
 						AllParts.push(part);
-						
+
 						//localStorage["part" + window.ObjNum] = JSON.stringify(part);
 
 						//alert(JSON.parse(localStorage["part"+window.ObjNum]).x1 );
@@ -1284,12 +1512,12 @@
 							ctx.arc(absX, absY, 6, .5 * Math.PI, 2 * Math.PI, false);
 							ctx.lineWidth = 2;
 							ctx.stroke();
-							
+
 							ctx.beginPath();
-							ctx.moveTo(absX+2.5, absY+7.5);
+							ctx.moveTo(absX + 2.5, absY + 7.5);
 							ctx.lineTo(absX, absY);
-							ctx.moveTo(absX+2.5, absY+7.5);
-							ctx.lineTo(absX-5, absY+9);
+							ctx.moveTo(absX + 2.5, absY + 7.5);
+							ctx.lineTo(absX - 5, absY + 9);
 							ctx.stroke();
 							//Update AllParts
 							AllParts[ObjNum].x1 = absX;
@@ -1323,6 +1551,287 @@
 				$(document).bind('keydown.force', CancelForceCreation);
 
 			}//end Force Creation
+
+			function CreateDForce(Type) {
+				//If cancel is called
+				if(Type == "Cancel") {
+					//unbind everything
+					//$("#GridCanvas").unbind('mousemove', PointCreationTracker);
+					$("#GridCanvas").unbind('click.dforce', DForceCreationHandler);
+					$(".Tool-Box-Block-Canvas").css("background-color", "transparent");
+					$('#CommandBar').html("");
+					temparray.length = 0;
+					window.pastselect.length = 0;
+					ClickSelect();
+					return 0;
+				}
+
+				var DForceCreationHandler = function(evt2) {
+					var clickPos = getMousePos(gridcanvas, evt2, $(".Viewport-Scrollable"), DrawingHeight);
+					var CloseTo = NearPart(clickPos.absoluteX, clickPos.absoluteY);
+
+					if(CloseTo != -1 && evt2.shiftKey == 0) {
+						//keep track of list
+						window.pastselect.length = 0;
+						window.pastselect.push(CloseTo);
+						//Unhighlight then highlight
+						ClearClickHighlight();
+						ClickHighlightPart(CloseTo);
+
+						//create the d force
+						var Part = new Object;
+						Part.type = "DForce"
+						Part.onmember = window.pastselect[window.pastselect.length - 1]
+						Part.r1 = 0;
+						Part.r2 = 1;
+						Part.x1 = 0;
+						Part.y1 = 0;
+						Part.x2 = 1;
+						Part.y2 = 0;
+						Part.servx1 = 0;
+						Part.servy1 = 0;
+						Part.servx2 = 1
+						Part.servy2 = 0;
+						Part.f1 = 1;
+						Part.f2 = 1;
+						Part.name = 'DF' + ObjNum
+						Part.direction = 'Global-Y';
+
+						//Check if there are existing canvas, if not create and get context, else clear
+						if(document.getElementById("obj" + window.ObjNum) == null) {
+							str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+							$(str1).appendTo($(".Obj-Canvas"));
+							var obj = document.getElementById("obj" + window.ObjNum);
+							var ctx = obj.getContext("2d");
+						} else {
+							var obj = document.getElementById("obj" + window.ObjNum);
+							var ctx = obj.getContext("2d");
+							ctx.beginPath();
+							ctx.stroke();
+							ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+						}
+
+						//start drawing
+						ctx.lineWidth = 3;
+						ctx.strokeStyle = "red";
+						x1 = Math.min(AllParts[Part.onmember].x1, AllParts[Part.onmember].x2)
+						x2 = Math.max(AllParts[Part.onmember].x1, AllParts[Part.onmember].x2)
+						if(Math.min(AllParts[Part.onmember].x1, AllParts[Part.onmember].x2) == AllParts[Part.onmember].x1) {
+							y1 = AllParts[Part.onmember].y1
+							y2 = AllParts[Part.onmember].y2
+						} else {
+							y1 = AllParts[Part.onmember].y2
+							y2 = AllParts[Part.onmember].y1
+						}
+						var slope = (y2 - y1) / (x2 - x1);
+						//how much to move?
+						//first turn
+						X12 = Math.sqrt(Math.pow(15, 2) / (1 + (Math.pow((1 / (-1 * slope)), 2))))
+						Y12 = X12 * (1 / (-1 * slope))
+						if(slope == 0) {
+							X12 = 0
+							Y12 = -15
+						} else if(slope == Number.POSITIVE_INFINITY) {
+							X12 = -15
+							Y12 = 0
+						} else if(slope == Number.NEGATIVE_INFINITY) {
+							X12 = 15
+							Y12 = 0
+						}
+						//second turn, indirectly third turn
+						X22 = Math.sqrt(Math.pow(15, 2) / (1 + (Math.pow((slope), 2))))
+						Y22 = X22 * slope
+						if(slope == Number.POSITIVE_INFINITY) {
+							X22 = 0
+							Y22 = 15
+						} else if(slope == Number.NEGATIVE_INFINITY) {
+							X22 = 0
+							Y22 = -15
+						}
+						//middle line
+						X33 = Math.sqrt(Math.pow(7, 2) / (1 + (Math.pow((slope), 2))))
+						Y33 = X33 * slope
+
+						ctx.beginPath();
+						ctx.moveTo(x1, y1);
+						if(y1 > y2) {
+							ctx.lineTo(x1 - X12, y1 - Y12);
+							ctx.lineTo(x1 - X12 + X22, y1 - Y12 + Y22)
+							ctx.lineTo(x1 + X22, y1 + Y22)
+							//middle line
+							ctx.moveTo(x1 - X12 + X33, y1 - Y12 + Y33)
+							ctx.lineTo(x1 - X12 + X33, y1 - Y12 + Y33 + 15)
+						} else {
+							ctx.lineTo(x1 + X12, y1 + Y12);
+							ctx.lineTo(x1 + X12 + X22, y1 + Y12 + Y22)
+							ctx.lineTo(x1 + X22, y1 + Y22)
+							//middle line
+							ctx.moveTo(x1 + X12 + X33, y1 + Y12 + Y33)
+							ctx.lineTo(x1 + X12 + X33, y1 + Y12 + Y33 + 15)
+						}
+						ctx.stroke();
+						//end drawing
+
+						AllParts.push(Part);
+						temparray.push(ObjNum)
+						DisplayProperty(temparray);
+						ObjNum++
+						//end create d force
+
+					} else if(CloseTo != -1 && evt2.shiftKey == 1) {
+						//keep track of list
+						window.pastselect.push(CloseTo);
+						//highlight
+						ClickHighlightPart(CloseTo);
+						//create d force
+						var Part = new Object;
+						Part.type = "DForce"
+						Part.onmember = window.pastselect[window.pastselect.length - 1]
+						Part.r1 = 0;
+						Part.r2 = 1;
+						Part.x1 = 0;
+						Part.y1 = 0;
+						Part.x2 = 1;
+						Part.y2 = 0;
+						Part.servx1 = 0;
+						Part.servy1 = 0;
+						Part.servx2 = 1
+						Part.servy2 = 0;
+						Part.f1 = 1;
+						Part.f2 = 1;
+						Part.direction = 'Global-Y';
+
+						//Check if there are existing canvas, if not create and get context, else clear
+						if(document.getElementById("obj" + window.ObjNum) == null) {
+							str1 = '<canvas id="obj' + window.ObjNum + '" class="Objects" width="' + window.DrawingWidth + '" height="' + window.DrawingHeight + '" style="top:0px; left: 0px; position: absolute;"></canvas>';
+							$(str1).appendTo($(".Obj-Canvas"));
+							var obj = document.getElementById("obj" + window.ObjNum);
+							var ctx = obj.getContext("2d");
+						} else {
+							var obj = document.getElementById("obj" + window.ObjNum);
+							var ctx = obj.getContext("2d");
+							ctx.beginPath();
+							ctx.stroke();
+							ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+						}
+
+						//start drawing
+						ctx.lineWidth = 3;
+						ctx.strokeStyle = "red";
+						x1 = Math.min(AllParts[Part.onmember].x1, AllParts[Part.onmember].x2)
+						x2 = Math.max(AllParts[Part.onmember].x1, AllParts[Part.onmember].x2)
+						if(Math.min(AllParts[Part.onmember].x1, AllParts[Part.onmember].x2) == AllParts[Part.onmember].x1) {
+							y1 = AllParts[Part.onmember].y1
+							y2 = AllParts[Part.onmember].y2
+						} else {
+							y1 = AllParts[Part.onmember].y2
+							y2 = AllParts[Part.onmember].y1
+						}
+						var slope = (y2 - y1) / (x2 - x1);
+						//how much to move?
+						//first turn
+						X12 = Math.sqrt(Math.pow(15, 2) / (1 + (Math.pow((1 / (-1 * slope)), 2))))
+						Y12 = X12 * (1 / (-1 * slope))
+						if(slope == 0) {
+							X12 = 0
+							Y12 = -15
+						} else if(slope == Number.POSITIVE_INFINITY) {
+							X12 = -15
+							Y12 = 0
+						} else if(slope == Number.NEGATIVE_INFINITY) {
+							X12 = 15
+							Y12 = 0
+						}
+						//second turn, indirectly third turn
+						X22 = Math.sqrt(Math.pow(15, 2) / (1 + (Math.pow((slope), 2))))
+						Y22 = X22 * slope
+						if(slope == Number.POSITIVE_INFINITY) {
+							X22 = 0
+							Y22 = 15
+						} else if(slope == Number.NEGATIVE_INFINITY) {
+							X22 = 0
+							Y22 = -15
+						}
+						//middle line
+						X33 = Math.sqrt(Math.pow(7, 2) / (1 + (Math.pow((slope), 2))))
+						Y33 = X33 * slope
+
+						ctx.beginPath();
+						ctx.moveTo(x1, y1);
+						if(y1 > y2) {
+							ctx.lineTo(x1 - X12, y1 - Y12);
+							ctx.lineTo(x1 - X12 + X22, y1 - Y12 + Y22)
+							ctx.lineTo(x1 + X22, y1 + Y22)
+							//middle line
+							ctx.moveTo(x1 - X12 + X33, y1 - Y12 + Y33)
+							ctx.lineTo(x1 - X12 + X33, y1 - Y12 + Y33 + 15)
+						} else {
+							ctx.lineTo(x1 + X12, y1 + Y12);
+							ctx.lineTo(x1 + X12 + X22, y1 + Y12 + Y22)
+							ctx.lineTo(x1 + X22, y1 + Y22)
+							//middle line
+							ctx.moveTo(x1 + X12 + X33, y1 + Y12 + Y33)
+							ctx.lineTo(x1 + X12 + X33, y1 + Y12 + Y33 + 15)
+						}
+						ctx.stroke();
+
+						AllParts.push(Part);
+						temparray.push(ObjNum)
+						DisplayProperty(temparray);
+						ObjNum++
+						//end create d force
+
+					} else {
+						window.pastselect.length = 0;
+						ClearClickHighlight();
+						ClearDragHighlight();
+						temparray.length = 0
+						//Hide Property bar
+						HideProperty();
+					}
+
+					//$('#CommandBar').html(window.pastselect);
+
+				}
+				//Start Real Force Creation
+				$('.DForce-Block').css("background-color", "#ccc");
+				var gridcanvas = document.getElementById('GridCanvas');
+				abs_coordinates = new Array();
+				coordinates = new Array();
+
+				window.pastselect.length = 0
+				var temparray = new Array;
+
+				//instruction for user
+				message = "Please select member to place distributed force and provide force property:";
+				$('#CommandBar').html(message);
+
+				//Cancel ClickSelect
+				ClickSelect('Cancel')
+				ClearClickHighlight();
+				//Bind
+				$("#GridCanvas").bind('click.dforce', DForceCreationHandler);
+
+				var CancelDForceCreation = function(e) {
+					//if ESC is pressed
+					if(e.keyCode == 27) {
+						//unbind
+						$("#GridCanvas").unbind('click.dforce', DForceCreationHandler);
+						//clear
+						temparray.length = 0;
+						window.pastselect.length = 0;
+						//set colors right
+						$('.DForce-Block').css("background-color", "transparent");
+						$('#CommandBar').html("");
+						$(document).unbind('keydown.dforce', CancelDForceCreation);
+						//re bind
+						ClickSelect()
+					}
+				}
+
+				$(document).bind('keydown.dforce', CancelDForceCreation);
+
+			}
 		</script>
 
 		<!--Coordinate tracker-->
@@ -1376,11 +1885,12 @@
 
 			}
 		</script>
-		
+
 		<script type="text/javascript">
-			function SaveDrawing(){
-				window.AllPartsJSON = $.toJSON( AllParts );
-				//alert(AllPartsJSON);
+			function SaveDrawing() {
+				window.AllPartsJSON = $.toJSON(AllParts);
+				//var temp = $.evalJSON( AllPartsJSON )
+				alert(AllPartsJSON);
 				localStorage["drawing"] = AllPartsJSON;
 			}
 		</script>
