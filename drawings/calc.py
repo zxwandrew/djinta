@@ -102,14 +102,17 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     
     unknownx=[]
     unknowny=[]
+    unknown=[]
     xcount=0
     ycount=0
+    mcount=0
+    allcount=0
     jointcount=1
 
     
     for force in AllForces:
         if(force.gettype()=='XForce'):
-            TempYMoment+=(force.gety1()-starty)*force.getmagnitude()
+            TempZMoment+=(force.gety1()-starty)*force.getmagnitude()
             SumX+=force.getmagnitude()
         if(force.gettype()=='YForce'):
             TempZMoment+=(force.getx1()-startx)*force.getmagnitude()
@@ -124,24 +127,36 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             tempname='x'+str(xcount)
             x=Symbol(tempname)
             unknownx.append(x)
+            unknown.append(x)
             
             SumX+=x
-            TempYMoment+=(support.y1-starty)*x
+            TempZMoment+=(support.y1-starty)*x
             xcount+=1
+            allcount+=1
         #Calc y forces from support
         if (support.magy==None and support.type!='XSupport'):
             tempname='y'+str(ycount)
             y=Symbol(tempname)
             unknowny.append(y)
+            unknown.append(y)
             
             SumY+=y
             TempZMoment+=(support.x1-startx)*y
             ycount+=1
+            allcount+=1
+        if (support.type=='FixedSupport'):
+            tempname='m'+str(mcount)
+            m=Symbol(tempname)
+            unknown.append(m) 
+            
+            TempZMoment+=m
+            mcount+=1
+            allcount+=1
        
     ZMoment.append(TempZMoment)
     ZMoment.append(SumY)
     
-    YMoment.append(TempYMoment)
+    #YMoment.append(TempYMoment)
     YMoment.append(SumX)
     
      
@@ -154,14 +169,15 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
         
         xcount=0
         ycount=0
+        allcount=0
     
     
         for force in AllForces:
             if(force.gettype()=='XForce'):
                 if(force.gety1()>=joint.y1):
-                    TempYMoment+=(force.gety1()-joint.y1)*force.getmagnitude()
+                    TempZMoment+=(force.gety1()-joint.y1)*force.getmagnitude()
                 else:
-                    TempYMoment2+=(force.gety1()-joint.y1)*force.getmagnitude()
+                    TempZMoment2+=(force.gety1()-joint.y1)*force.getmagnitude()
 
             if(force.gettype()=='YForce'):
                 if(force.getx1()>=joint.x1):
@@ -180,24 +196,31 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
         for support in AllSupports:
             if (support.magx==None and support.type!='YSupport'):
                 if(support.y1>=joint.y1):
-                    TempYMoment+=(support.y1-joint.y1)*unknownx[xcount]
+                    TempZMoment+=(support.y1-joint.y1)*unknown[allcount]
                 else:
-                    TempYMoment2+=(support.y1-joint.y1)*unknownx[xcount]
+                    TempZMoment2+=(support.y1-joint.y1)*unknown[allcount]
                 xcount+=1
+                allcount+=1
                 
             #Calc y forces from support
             if (support.magy==None and support.type!='XSupport'):
                 if(support.x1>=joint.x1):
-                    TempZMoment+=(support.x1-joint.x1)*unknowny[ycount]
+                    TempZMoment+=(support.x1-joint.x1)*unknown[allcount]
                 else:
-                    TempZMoment2+=(support.x1-joint.x1)*unknowny[ycount]
+                    TempZMoment2+=(support.x1-joint.x1)*unknown[allcount]
                 ycount+=1
+                allcount+=1
+            if(support.type=='FixedSupport'):
+                TempZMoment+=m
+                mcount+=1
+                allcount+=1
+                
 
         
         ZMoment.append(TempZMoment)        
-        YMoment.append(TempYMoment)
+        #YMoment.append(TempYMoment)
         ZMoment.append(TempZMoment2)        
-        YMoment.append(TempYMoment2)
+        #YMoment.append(TempYMoment2)
         
         jointcount+=1
    
