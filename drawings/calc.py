@@ -19,6 +19,7 @@ os.environ['HOME'] = '/tmp'
 from sympy import *
 from django.utils import simplejson
 from decimal import Decimal
+from operator import itemgetter, attrgetter
 
 # file charts.py, a stupid little test to see if plot was working
 def simple(request):
@@ -72,6 +73,7 @@ class support:
         self.y1=float(y1t)
         self.type=typet
         
+        
 class force:
     def __init__(self, x1t, y1t, typet, magnitudet):
         self.x1=float(x1t)
@@ -92,58 +94,50 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     starty=AllSupports[0].y1
     ZMoment=[]
     YMoment=[]
-    TempZMoment=[]
-    TempYMoment=[]
-    SumX=[]
-    SumY=[]
+    
+    TempZMoment=0
+    TempYMoment=0
+    SumX=0
+    SumY=0
     
     unknownx=[]
     unknowny=[]
     xcount=0
     ycount=0
     jointcount=1
-    #initiate z and y moment
-    
-    tempZM=0
-    tempYM=0
-    tempSumX=0
-    tempSumY=0
-    
+
     
     for force in AllForces:
         if(force.gettype()=='XForce'):
-            tempYM+=(force.gety1()-starty)*force.getmagnitude()
-            tempSumX+=force.getmagnitude()
+            TempYMoment+=(force.gety1()-starty)*force.getmagnitude()
+            SumX+=force.getmagnitude()
         if(force.gettype()=='YForce'):
-            tempZM+=(force.getx1()-startx)*force.getmagnitude()
-            tempSumY+=force.getmagnitude()
+            TempZMoment+=(force.getx1()-startx)*force.getmagnitude()
+            SumY+=force.getmagnitude()
         if(force.gettype()=='MForce'):
-            tempZM+=force.magnitude()
+            TempZMoment+=force.magnitude()
     
     #Calc X forces from support
     #print(AllSupports)
     for support in AllSupports:
         if (support.magx==None and support.type!='YSupport'):
             tempname='x'+str(xcount)
-            unknownx.append(Symbol(tempname))
+            x=Symbol(tempname)
+            unknownx.append(x)
             
-            SumX.append(1)
-            TempYMoment.append(support.y1-starty)
+            SumX+=x
+            TempYMoment+=(support.y1-starty)*x
             xcount+=1
         #Calc y forces from support
         if (support.magy==None and support.type!='XSupport'):
             tempname='y'+str(ycount)
-            unknowny.append(Symbol(tempname))
+            y=Symbol(tempname)
+            unknowny.append(y)
             
-            SumY.append(1)
-            TempZMoment.append(support.x1-startx)
+            SumY+=y
+            TempZMoment+=(support.x1-startx)*y
             ycount+=1
-    
-    TempYMoment.append((-1*tempYM))
-    TempZMoment.append((-1*tempZM))
-    SumX.append(-1*tempSumX)
-    SumY.append(-1*tempSumY)
-    
+       
     ZMoment.append(TempZMoment)
     ZMoment.append(SumY)
     
@@ -152,69 +146,53 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     
      
     for joint in AllJoints:
-        tempZM=0
-        tempYM=0
-        tempZM2=0
-        tempYM2=0
+        TempZMoment=0
+        TempYMoment=0
         
-        tempSumX=0
-        tempSumY=0
-        TempZMoment=[]
-        TempYMoment=[]
+        TempZMoment2=0
+        TempYMoment2=0
         
-        TempYMoment2=[]
-        TempZMoment2=[]
+        xcount=0
+        ycount=0
     
     
         for force in AllForces:
             if(force.gettype()=='XForce'):
                 if(force.gety1()>=joint.y1):
-                    tempYM+=(force.gety1()-joint.y1)*force.getmagnitude()
+                    TempYMoment+=(force.gety1()-joint.y1)*force.getmagnitude()
                 else:
-                    tempYM2+=(force.gety1()-joint.y1)*force.getmagnitude()
+                    TempYMoment2+=(force.gety1()-joint.y1)*force.getmagnitude()
 
             if(force.gettype()=='YForce'):
                 if(force.getx1()>=joint.x1):
-                    tempZM+=(force.getx1()-joint.x1)*force.getmagnitude()
+                    TempZMoment+=(force.getx1()-joint.x1)*force.getmagnitude()
                 else:
-                    tempZM2+=(force.getx1()-joint.x1)*force.getmagnitude()
+                    TempZMoment2+=(force.getx1()-joint.x1)*force.getmagnitude()
 
             if(force.gettype()=='MForce'):
                 if(force.getx1()>=joint.x1):
-                    tempZM+=force.magnitude()
+                    TempZMoment+=force.magnitude()
                 else:
-                    tempZM2+=force.magnitude()
+                    TempZMoment2+=force.magnitude()
         
         #Calc X forces from support
         #print(AllSupports)
         for support in AllSupports:
             if (support.magx==None and support.type!='YSupport'):
                 if(support.y1>=joint.y1):
-                    TempYMoment.append(support.y1-joint.y1)
-                    TempYMoment2.append(0)
+                    TempYMoment+=(support.y1-joint.y1)*unknownx[xcount]
                 else:
-                    TempYMoment2.append(support.y1-joint.y1)
-                    TempYMoment.append(0)
-                    
+                    TempYMoment2+=(support.y1-joint.y1)*unknownx[xcount]
                 xcount+=1
+                
             #Calc y forces from support
             if (support.magy==None and support.type!='XSupport'):
                 if(support.x1>=joint.x1):
-                    TempZMoment.append(support.x1-joint.x1)
-                    TempZMoment2.append(0)
+                    TempZMoment+=(support.x1-joint.x1)*unknowny[ycount]
                 else:
-                    TempZMoment2.append(support.x1-joint.x1)
-                    TempZMoment.append(0)
-                    
+                    TempZMoment2+=(support.x1-joint.x1)*unknowny[ycount]
                 ycount+=1
-        
-        
-        
-        TempYMoment.append((-1*tempYM))
-        TempZMoment.append((-1*tempZM))
-        
-        TempYMoment2.append((-1*tempYM2))
-        TempZMoment2.append((-1*tempZM2))
+
         
         ZMoment.append(TempZMoment)        
         YMoment.append(TempYMoment)
@@ -222,22 +200,43 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
         YMoment.append(TempYMoment2)
         
         jointcount+=1
-
+   
+   
     #put zmoment into matrix format and solve
-    systemz = Matrix(ZMoment)
-    print(systemz)
+    #mat1=Matrix(((0,15.0,10.0,700.0),(1,1,1,100),(0,10.0,5.0,200.0),(-5.0,0,0,0)))
+    systemz = set(ZMoment)
+    print(systemz)    
     print(unknowny)
-    answerx = solve_linear_system(systemz, *unknowny)
+    answery = solve(systemz, *unknowny)
     
     #put ymoment into matrix format and solve
-    systemy = Matrix(YMoment)
+    systemy = set(YMoment)
     print(systemy)
     print(unknownx)
-    answery = solve_linear_system(systemy, *unknownx)
+    answerx = solve(systemy, *unknownx)
     
     #return answer
+    print(answery)
     print(answerx)
-    return (answerx)
+
+    xcount=0
+    ycount=0
+    scount=0
+    answer={}
+    for support in AllSupports:
+        if (support.magx==None and support.type!='YSupport'):
+            support.magx=answerx[unknownx[xcount]]
+            answer[str(scount)+'x']=answerx[unknownx[xcount]]
+            xcount+=1
+        
+        if (support.magy==None and support.type!='XSupport'):    
+            support.magy=answery[unknowny[ycount]]
+            answer[str(scount)+'y']=answery[unknowny[ycount]]
+            ycount+=1
+        scount+=1
+            
+    return (answer)
+
     
 def MainParse(form):
     
@@ -271,7 +270,13 @@ def MainParse(form):
             AllParts.append(tempforce)
             AllForces.append(tempforce)
         ObjNum+=1
-        
+    
+    sorted(AllParts, key=attrgetter('x1','y1'))
+    sorted(AllMembers, key=attrgetter('x1','y1'))
+    sorted(AllJoints, key=attrgetter('x1','y1'))
+    sorted(AllSupports, key=attrgetter('x1','y1'))
+    sorted(AllForces, key=attrgetter('x1','y1'))
+    
     answer=FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces)
     
     #check=42
