@@ -163,6 +163,15 @@
 					r2 = form.r2.value;
 					direction = form.direction.value
 					
+					pn1=1
+					pn2=1
+					
+					if(f1<0){
+						pn1=-1
+					}
+					if(f2<0){
+						pn2=-1
+					}
 
 					//get canvas
 					var obj = document.getElementById("obj" + matchingselected[j]);
@@ -174,13 +183,21 @@
 					//start drawing
 					ctx.lineWidth = 3;
 					if(direction=='Global-Y'){
-						ctx.strokeStyle="Red"						
+						ctx.strokeStyle="Red"	
+						AllParts[matchingselected[j]].slope = 'infinity'			
 					}else if(direction=='Global-X'){
 						ctx.strokeStyle='Orange'
+						AllParts[matchingselected[j]].slope = 0;
 					}else if(direction=='Local-Y'){
+						if(slope==0){
+							AllParts[matchingselected[j]].slope = 'infinity'
+						}else{
+							AllParts[matchingselected[j]].slope = -1/slope;
+						}
 						ctx.strokeStyle='Green'	
 					}else if(direction=='Local-X'){
 						ctx.strokeStyle='Purple'
+						AllParts[matchingselected[j]].slope = slope;
 					}
 					
 					x1 = Math.min(AllParts[AllParts[matchingselected[j]].onmember].x1, AllParts[AllParts[matchingselected[j]].onmember].x2)
@@ -198,18 +215,17 @@
 					X44 = Math.sqrt(Math.pow((r1*15), 2) / (1 + (Math.pow((slope), 2))))
 					Y44 = X44 * slope
 					if(slope == 0) {
-						X44 = 1*r1*15
+						X44 = r1*15
 						Y44 = 0
 					} else if(slope == Number.POSITIVE_INFINITY) {
 						X44 = 0
-						Y44 = 1*r1*15
+						Y44 = r1*15
 					} else if(slope == Number.NEGATIVE_INFINITY) {
 						X44 = 0
 						Y44 = -r1*15
 					}					
 					x1=x1+X44
 					y1=y1+Y44
-								
 					
 					//how much to move?
 					if(f1>f2){
@@ -284,10 +300,20 @@
 						ctx.lineTo(x1 + X12, y1 + Y12)
 					}
 					ctx.stroke();
+					
+					AllParts[matchingselected[j]].servx1 = x1/15;
+					AllParts[matchingselected[j]].servy1 = (DrawingHeight-y1-1)/15;
+					
+					AllParts[matchingselected[j]].servx2 = (x1 + X21)/15
+					AllParts[matchingselected[j]].servy2 = (DrawingHeight-(y1 + Y21)-1)/15;
+				
+					
+					
 					//end box
 					
 					//draw lines
 					if(direction=='Global-Y'){
+						/*
 						for(i=1;i<((length/15))+1;i++){
 							X33 = Math.sqrt(Math.pow(i*15, 2) / (1 + (Math.pow((slope), 2))))
 							Y33 = X33 * slope
@@ -302,7 +328,7 @@
 							ctx.moveTo(x1+X33, y1+Y33);
 							ctx.lineTo(x1+X33, y1+Y33-15);
 							ctx.stroke()
-						}
+						}*/
 						
 					}else if(direction=='GlobalX'){
 						
@@ -375,7 +401,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 					}
 					displaymessage += '</p><br/> <form> Magnitude: <input class="Property-Textbox" type="text" name="magnitude" value="' + AllParts[selected[0]].magnitude + '"/>';
 					var tempselected = "'" + matchingselected.join('X') + "'";
-					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateDForceProperty(this.form, ' + tempselected + ')"/></form>';
+					displaymessage += ' <input type="button" name="updateproperty" value="Update" onClick="UpdateForceProperty(this.form, ' + tempselected + ')"/></form>';
 					$('#PropertyBar').html(displaymessage);
 
 				}
@@ -1074,6 +1100,24 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						var obj = document.getElementById("obj" + window.ObjNum);
 						var ctx = obj.getContext("2d");
 						ctx.clearRect(0, 0, window.DrawingWidth, window.DrawingHeight);
+						
+						//store into AllParts and localStorage
+						part = new Object();
+						part.name= "M"+ObjNum
+						part.type = "member";
+						part.x1 = abs_coordinates[0][0];
+						part.y1 = abs_coordinates[0][1];
+						part.x2 = abs_coordinates[1][0];
+						part.y2 = abs_coordinates[1][1];
+						//for server
+						part.servx1 = coordinates[0][0];
+						part.servy1 = coordinates[0][1];
+						part.servx2 = coordinates[1][0];
+						part.servy2 = coordinates[1][1];
+						part.e = 300000;
+						part.i = 100;
+						part.area = 10;
+						AllParts.push(part);
 
 						//starting Point
 						ctx.beginPath();
@@ -1098,23 +1142,13 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						ctx.lineWidth = 1;
 						ctx.strokeStyle = "black";
 						ctx.stroke();
+						
+						//label
+						//label
+						ctx.fillStyle = "black";
+						ctx.fillText(part.name, Math.abs(part.x1+part.x2)/2, Math.abs(part.y1+part.y2)/2+10);
 
-						//store into AllParts and localStorage
-						part = new Object();
-						part.type = "member";
-						part.x1 = abs_coordinates[0][0];
-						part.y1 = abs_coordinates[0][1];
-						part.x2 = abs_coordinates[1][0];
-						part.y2 = abs_coordinates[1][1];
-						//for server
-						part.servx1 = coordinates[0][0];
-						part.servy1 = coordinates[0][1];
-						part.servx2 = coordinates[1][0];
-						part.servy2 = coordinates[1][1];
-						part.e = 300000;
-						part.i = 100;
-						part.area = 10;
-						AllParts.push(part);
+						
 
 						//localStorage["part" + window.ObjNum] = JSON.stringify(part);
 
@@ -1233,41 +1267,63 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 					//start switch
 					switch(Type) {
 						case "Hinge":
-							ctx.arc(absX + 0.5, absY + 0.5, 5, 0, 2 * Math.PI, false);
-							ctx.fillStyle = "white";
-							ctx.fill();
-							ctx.lineWidth = 2;
-							ctx.strokeStyle = "black";
-							ctx.stroke();
-							//add it to AllParts
+						//add it to AllParts
 							var Part = new Object;
+							Part.name= "P"+ObjNum
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
 							Part.type = "Hinge";
 							AllParts.push(Part);
-							ObjNum++;
-							break;
-						case "FixedJoint":
-							ctx.beginPath();
+							
 							ctx.arc(absX + 0.5, absY + 0.5, 5, 0, 2 * Math.PI, false);
-							ctx.fillStyle = "black";
+							ctx.fillStyle = "white";
 							ctx.fill();
 							ctx.lineWidth = 2;
 							ctx.strokeStyle = "black";
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX-5, absY+20);
 							ctx.stroke();
-							//add it to AllParts
+							
+							ObjNum++;
+							break;
+						case "FixedJoint":
+						//add it to AllParts
 							var Part = new Object;
+							Part.name= "P"+ObjNum
 							Part.x1 = absX;
 							Part.y1 = absY;
 							Part.servx1 = firstX;
 							Part.servy1 = firstY;
 							Part.type = "FixedJoint";
 							AllParts.push(Part);
+							
+							ctx.beginPath();
+							ctx.arc(absX + 0.5, absY + 0.5, 5, 0, 2 * Math.PI, false);
+							ctx.fillStyle = "black";
+							ctx.fill();
+							ctx.lineWidth = 2;
+							ctx.strokeStyle = "black";
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX-5, absY+20);
+							ctx.stroke();
+							
 							ObjNum++;
 							break;
 						case "XSupport":
+						//add it to AllParts
+							var Part = new Object;
+							Part.name= "S"+ObjNum
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "XSupport";
+							AllParts.push(Part);
+							
 							ctx.beginPath();
 							ctx.arc(absX, absY + 7, 7, 0, 2 * Math.PI, false);
 							ctx.fillStyle = "blue";
@@ -1279,17 +1335,23 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.textBaseline = "middle";
 							ctx.fillStyle = "black";
 							ctx.fillText("X", absX - 4, absY + 7.5);
-							//add it to AllParts
-							var Part = new Object;
-							Part.x1 = absX;
-							Part.y1 = absY;
-							Part.servx1 = firstX;
-							Part.servy1 = firstY;
-							Part.type = "XSupport";
-							AllParts.push(Part);
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX-5, absY+20);
+							
 							ObjNum++;
 							break;
 						case "YSupport":
+						//add it to AllParts
+							var Part = new Object;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.name= "S"+ObjNum
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "YSupport";
+							AllParts.push(Part);
+							
 							ctx.beginPath();
 							ctx.arc(absX, absY + 7, 7, 0, 2 * Math.PI, false);
 							ctx.fillStyle = "blue";
@@ -1301,17 +1363,23 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.textBaseline = "middle";
 							ctx.fillStyle = "black";
 							ctx.fillText("Y", absX - 4, absY + 7.5);
-							//add it to AllParts
-							var Part = new Object;
-							Part.x1 = absX;
-							Part.y1 = absY;
-							Part.servx1 = firstX;
-							Part.servy1 = firstY;
-							Part.type = "YSupport";
-							AllParts.push(Part);
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX-5, absY+20);
+							
 							ObjNum++;
 							break;
 						case "PinSupport":
+						//add it to AllParts
+							var Part = new Object;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.name="S"+ObjNum
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "PinSupport";
+							AllParts.push(Part);
+						
 							ctx.beginPath();
 							ctx.moveTo(absX - 0.5, absY - 0.5);
 							// give the (x,y) coordinates
@@ -1322,18 +1390,25 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							//ctx.fill();
 							ctx.lineWidth = 2;
 							ctx.strokeStyle = "black";
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX-5, absY+20);
+							
 							ctx.stroke();
-							//add it to AllParts
-							var Part = new Object;
-							Part.x1 = absX;
-							Part.y1 = absY;
-							Part.servx1 = firstX;
-							Part.servy1 = firstY;
-							Part.type = "PinSupport";
-							AllParts.push(Part);
+							
 							ObjNum++;
 							break;
 						case "FixedSupport":
+						//add it to AllParts
+							var Part = new Object;
+							Part.x1 = absX;
+							Part.y1 = absY;
+							Part.name= "S"+ObjNum
+							Part.servx1 = firstX;
+							Part.servy1 = firstY;
+							Part.type = "FixedSupport";
+							AllParts.push(Part);
+							
 							ctx.lineWidth = 2;
 							ctx.strokeStyle = "black";
 							ctx.strokeRect(absX - 5.5, absY - 7.5, 11, 15);
@@ -1345,15 +1420,12 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(absX + 5.5, absY + 2.5);
 							ctx.moveTo(absX - 5.5, absY + 2.5);
 							ctx.lineTo(absX + 5.5, absY + 7.5);
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX-5, absY+20);
+							
 							ctx.stroke();
-							//add it to AllParts
-							var Part = new Object;
-							Part.x1 = absX;
-							Part.y1 = absY;
-							Part.servx1 = firstX;
-							Part.servy1 = firstY;
-							Part.type = "FixedSupport";
-							AllParts.push(Part);
+							
 							ObjNum++;
 							break;
 					}//end switch
@@ -1400,6 +1472,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						case "YForce":
 							var Part = new Object;
 							Part.type = "YForce"
+							Part.name= "F"+ObjNum
 							Part.x1 = 0;
 							Part.y1 = 0;
 							Part.servx1 = 0;
@@ -1414,6 +1487,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						case "XForce":
 							var Part = new Object;
 							Part.type = "XForce"
+							Part.name= "F"+ObjNum
 							Part.x1 = 0;
 							Part.y1 = 0;
 							Part.servx1 = 0;
@@ -1427,6 +1501,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						case "MForce":
 							var Part = new Object;
 							Part.type = "MForce"
+							Part.name= "F"+ObjNum
 							Part.x1 = 0;
 							Part.y1 = 0;
 							Part.servx1 = 0;
@@ -1483,6 +1558,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(absX, absY);
 							ctx.moveTo(absX, absY);
 							ctx.lineTo(absX + 6, absY - 7);
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX, absY-20);
 							ctx.stroke();
 							//Update AllParts
 							AllParts[ObjNum].x1 = absX;
@@ -1500,6 +1578,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(absX, absY);
 							ctx.moveTo(absX, absY);
 							ctx.lineTo(absX - 7, absY + 6);
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX, absY-20);
 							ctx.stroke();
 							//Update AllParts
 							AllParts[ObjNum].x1 = absX;
@@ -1518,6 +1599,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(absX, absY);
 							ctx.moveTo(absX + 2.5, absY + 7.5);
 							ctx.lineTo(absX - 5, absY + 9);
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, absX, absY-20);
 							ctx.stroke();
 							//Update AllParts
 							AllParts[ObjNum].x1 = absX;
@@ -1594,7 +1678,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						Part.servy2 = 0;
 						Part.f1 = 1;
 						Part.f2 = 1;
-						Part.name = 'DF' + ObjNum
+						Part.name = 'D' + ObjNum
 						Part.direction = 'Global-Y';
 
 						//Check if there are existing canvas, if not create and get context, else clear
@@ -1658,6 +1742,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(x1 - X12, y1 - Y12);
 							ctx.lineTo(x1 - X12 + X22, y1 - Y12 + Y22)
 							ctx.lineTo(x1 + X22, y1 + Y22)
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, (2*x1 - X12 + X22)/2, (2*y1 - Y12 + Y22)/2-10);
 							//middle line
 							ctx.moveTo(x1 - X12 + X33, y1 - Y12 + Y33)
 							ctx.lineTo(x1 - X12 + X33, y1 - Y12 + Y33 + 15)
@@ -1665,6 +1752,10 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(x1 + X12, y1 + Y12);
 							ctx.lineTo(x1 + X12 + X22, y1 + Y12 + Y22)
 							ctx.lineTo(x1 + X22, y1 + Y22)
+							//label
+							
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, (2*x1 + X12 + X22)/2, (2*y1 + Y12 + Y22)/2-10);
 							//middle line
 							ctx.moveTo(x1 + X12 + X33, y1 + Y12 + Y33)
 							ctx.lineTo(x1 + X12 + X33, y1 + Y12 + Y33 + 15)
@@ -1699,6 +1790,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 						Part.servy2 = 0;
 						Part.f1 = 1;
 						Part.f2 = 1;
+						Part.name="D"+ObjNum
 						Part.direction = 'Global-Y';
 
 						//Check if there are existing canvas, if not create and get context, else clear
@@ -1762,6 +1854,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(x1 - X12, y1 - Y12);
 							ctx.lineTo(x1 - X12 + X22, y1 - Y12 + Y22)
 							ctx.lineTo(x1 + X22, y1 + Y22)
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, (2*x1 - X12 + X22)/2, (2*y1 - Y12 + Y22)/2-10);
 							//middle line
 							ctx.moveTo(x1 - X12 + X33, y1 - Y12 + Y33)
 							ctx.lineTo(x1 - X12 + X33, y1 - Y12 + Y33 + 15)
@@ -1769,6 +1864,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 							ctx.lineTo(x1 + X12, y1 + Y12);
 							ctx.lineTo(x1 + X12 + X22, y1 + Y12 + Y22)
 							ctx.lineTo(x1 + X22, y1 + Y22)
+							//label
+							ctx.fillStyle = "black";
+							ctx.fillText(Part.name, (2*x1 + X12 + X22)/2, (2*y1 + Y12 + Y22)/2-10);
 							//middle line
 							ctx.moveTo(x1 + X12 + X33, y1 + Y12 + Y33)
 							ctx.lineTo(x1 + X12 + X33, y1 + Y12 + Y33 + 15)
