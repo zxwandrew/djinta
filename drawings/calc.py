@@ -382,7 +382,7 @@ def MainParse(form):
     #fixed, 3 joints
     #form=[{u'y2': 450, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 10, u'x2': 150, u'servy2': 15, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 10, u'servx2': 20, u'x2': 300, u'servy2': 15, u'y1': 450, u'x1': 150, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 20, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 450, u'x1': 300, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 30, u'servx2': 40, u'x2': 600, u'servy2': 15, u'y1': 450, u'x1': 450, u'type': u'member'}, {u'name': u'S4', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1':75, u'type': u'FixedSupport'}, {u'name': u'S5', u'servy1': 15, u'servx1': 40, u'y1': 450, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'P6', u'servy1': 15, u'servx1': 10, u'y1': 450, u'x1': 150, u'type': u'Hinge'}, {u'name': u'P7', u'servy1': 15, u'servx1': 20, u'y1': 450, u'x1': 300, u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 15, u'servx1': 30, u'y1': 450, u'x1': 450, u'type': u'Hinge'}, {u'name': u'F9', u'servy1': 15, u'servx1': 15, u'magnitude': u'-100', u'y1': 225, u'x1': 225, u'type': u'YForce'}]
     #fixed, distributed
-    form = [{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 5, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 75, u'type': u'member'}, {u'slope': u'infinity', u'f1': u'2', u'f2': u'5', u'y2':0, u'r1': u'12', u'r2': u'17', u'servy1': 20, u'servx1': 17, u'servx2': 24.2, u'direction': u'Global-Y', u'x2': 1, u'servy2': 20, u'onmember': 0, u'y1': 0, u'x1': 0, u'type': u'DForce', u'name': u'D1'}, {u'name': u'S2', u'servy1': 20, u'servx1': 5, u'y1': 375, u'x1': 75, u'type': u'FixedSupport'}]
+    #form = [{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 5, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 75, u'type': u'member'}, {u'slope': u'infinity', u'f1': u'2', u'f2': u'5', u'y2':0, u'r1': u'12', u'r2': u'17', u'servy1': 20, u'servx1': 17, u'servx2': 24.2, u'direction': u'Global-Y', u'x2': 1, u'servy2': 20, u'onmember': 0, u'y1': 0, u'x1': 0, u'type': u'DForce', u'name': u'D1'}, {u'name': u'S2', u'servy1': 20, u'servx1': 5, u'y1': 375, u'x1': 75, u'type': u'FixedSupport'}]
     
     for x in form:
         print(x['type'])
@@ -422,7 +422,7 @@ def MainParse(form):
     print(answer)
     return AllParts
 
-output = MainParse(sys.argv[1])
+#output = MainParse(sys.argv[1])
     
 
 
