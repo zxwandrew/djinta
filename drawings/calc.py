@@ -71,6 +71,7 @@ class joint:
 class support:
     magx=None
     magy=None
+    magm=None
     def __init__(self, x1t, y1t, typet,namet):
         self.x1=float(x1t)
         self.y1=float(y1t)
@@ -203,7 +204,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             ycount+=1
             allcount+=1
         #Calc m forces
-        if (support.type=='FixedSupport'):
+        if (support.magm ==None and support.type=='FixedSupport'):
             tempname='m'+str(mcount)
             m=Symbol(tempname)
             unknown.append(m)
@@ -212,6 +213,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             TempZMoment+=m
             SumY+=0*m
             mcount+=1
+            ycount+=1
             allcount+=1
        
     ZMoment.append(TempZMoment)
@@ -315,7 +317,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     
                 ycount+=1
                 allcount+=1
-            if(support.type=='FixedSupport'):
+            if(support.magm==None and support.type=='FixedSupport'):
                 TempZMoment+=unknown[allcount]
                 mcount+=1
                 allcount+=1
@@ -349,6 +351,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
 
     xcount=0
     ycount=0
+    mcount=0
     scount=0
     answer={}
     for support in AllSupports:
@@ -361,6 +364,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             support.magy=answery[unknowny[ycount]]
             answer[str(scount)+'y']=answery[unknowny[ycount]]
             ycount+=1
+        if(support.magm==None and support.type=='FixedSupport'):
+            support.magm=answery[unknowny[ycount]]
+            answer[str(scount)+'m']=answery[unknowny[ycount]]
+            ycount+=1
+            
         scount+=1
             
     return (answer)
@@ -420,7 +428,7 @@ def MainParse(form):
     #AllParts=[['ihi'],['wsaasdf'],[12]]
     #temp=form[0]['x1']
     print(answer)
-    return AllParts
+    return answer
 
 #output = MainParse(sys.argv[1])
     
