@@ -30,7 +30,7 @@
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.json-2.3.min.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.event.drag-2.2.js"></script>
 		{% dajaxice_js_import %}
-		<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>
+		<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>-->
 
 		<!--resizing mostly-->
 		<script type="text/javascript">
@@ -159,7 +159,6 @@
 					AllParts[matchingselected[j]].r1 = form.r1.value;
 					AllParts[matchingselected[j]].r2 = form.r2.value;
 					AllParts[matchingselected[j]].direction = form.direction.value;
-
 					
 					f1 = form.f1.value;
 					f2 = form.f2.value;
@@ -1993,6 +1992,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 			function SaveDrawing() {
 				window.AllPartsJSON = $.toJSON(AllParts);
 				//alert(AllPartsJSON);
+				alert("Saved!")
 				localStorage["drawing"] = AllPartsJSON;
 			}
 
