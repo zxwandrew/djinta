@@ -42,6 +42,46 @@ def simple(request):
     canvas.print_png(response)
     return response
 
+class points:
+    def __init__(self):
+        points=[]
+    def add(self, x1t, y1t):
+        #check if point already exists (probably need to be optimized)
+        matchcount=0
+        for point in points:
+            matchcount+=1
+            if(point[0]==x1t and point[1]==y1t):
+                return matchcount
+                break
+        #add to points
+        if(matchcount==0):
+            temp=[x1t, y1t]
+            points.append(temp) 
+            return len(points)-1
+    def getX(self,x):
+        return points[x][0]
+    def getY(self,x):
+        return points[x][1]
+        
+def connections:
+    def __init__(self):
+        connections=[]
+    def add(self, c1t, c2t):
+    #check if connection already exists (probably need to be optimized)
+        matchcount=0
+        for connection in connections:
+            if((connection[0]==c1t or connection[0]==c2t) and (connection[1]==c1t or connection[1]==c2t)):
+                matchcount+=1
+        if(matchcount==0):
+            if(points.getX(c1t)<=points.getX(c2t)):
+                temp=[c1t, c2t]
+                connections.append(temp)
+            else:
+                temp=[c2t, c1t]
+                connections.append(temp)
+            
+        
+
 class member:
     connectpart=[]
     def __init__(self, x1t, y1t, x2t, y2t, it, et, areat,namet):
@@ -56,13 +96,18 @@ class member:
         self.name=namet
         self.type='Member'
         
-    
+        c1=points.add(x1t, y1t)
+        c2=points.add(x2t, y2t)
+        
+    '''
     def addjoint (self, jointt, x1t, y1t):
         if(self.x1==x1t and self.y1==y1t):
             self.joint1={'type': jointt}
         elif(self.x2==x1t and self.y2==y1t):
             self.joint2={'type': jointt}
         #ignoring mid member joints for now
+    '''   
+    
 
 class joint:
     onmember=[]
@@ -127,17 +172,56 @@ def onmember(AllParts, Part, partcount):
     allcount=0
     for Member in AllParts:
         if(Member.type=='Member'):
+            #algo for testing if on member
             if(Part.x1>=Member.x1 and Part.x1<=Member.x2):
                 v1=[Member.x2-Member.x1, Member.y2-Member.y1]
                 v2=[Member.x2-Part.x1, Member.y2-Part.y1]
                 xp = v1[0]*v2[1]-v1[1]*v2[0]
                 if(xp==0):
+                    #on member numbered allcount by AllParts
                     Part.onmember.append(allcount)
+                    #On part numbered partcount by AllParts
                     Member.connectpart.append(partcount)
                     return 0
         allcount+=1
 
+def PointsFromMembers(Member):
+    templist=[]
+    temp1=[Member.x1, Member.y1]
+    temp2=[Member.x2, Member.y2]
+    templist.append(temp1)#add endpoint 1
+    templist.append(temp2)#add endpoint 2
+    
+    for connectpart in Member.connectpart:
+        #very inefficient :/
+        #check for conflicts
+        conflict=bool(False)
+        for temps in templist:
+            if(temps[0]==AllParts[connectpart].x1 and temps[1]==AllParts[connectpart].y1):
+                conflict=bool(True)
+        #if no conflict add to templist
+        if(conflict==False):
+            temp=[AllParts[connectpart].x1, AllParts[connectpart].y1]
+            templist.append(temp)
+    
+    #sort (insertion sort?)
+    sortlist=[]
+    sortlist.append(temp1)
+    
+    for pos1 in range(1, len(templist)):
+        #if pos is greater than the last element, then just append
+        if(sortlist[len(sortlist)-1][x]<templist[pos1][x] or (sortlist[len(sortlist)-1][x]==templist[pos1][x] and sortlist[len(sortlist)-1][y]>templist[pos1][y])):
+            sortlist.append(templist[pos1])
+        #else loop until appropriate spot
+        for pos2in range(len(sortlist)):
+            if(sortlist[pos2][x]>templist[pos1][x] or (sortlist[pos2][x]==templist[pos1][x] and sortlist[pos2][y]<templist[pos1][y])):
+                sortlist.insert(pos2, templist[pos1])
+    
+    #create points now
+    
+
 def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
+    #KIND OF DONE, BUT A LOT OF BUGS (DITCHING THIS EFFORT FOR MSA... FOR NOW)
     startx=AllSupports[0].x1
     starty=AllSupports[0].y1
     ZMoment=[]
@@ -397,7 +481,10 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             
     return (answer)
 
+
+
 def YShearCalc(Member,AllParts):
+    #NOT BY ANY MEANS CLOSE TO BEING DONE, just a PLACEHOLDER FOR NOW
     TempParts=[]
     for x in Member.connectpart:
         TempParts.append(AllParts[x])
@@ -413,6 +500,7 @@ def MainParse(form):
     AllJoints=[]
     AllSupports=[]
     AllForces=[]
+    points= points()
     ObjNum=0
     
     #Will need to be deleted in the future
@@ -454,13 +542,16 @@ def MainParse(form):
             AllForces.append(tempdforce)
         ObjNum+=1
     
+    
+    #SORT EVERYTHING BY THEIR COORDINATES.... NEED BETTER WAY TO SORT
     sorted(AllParts, key=attrgetter('x1','y1'))
     sorted(AllMembers, key=attrgetter('x1','y1'))
     sorted(AllJoints, key=attrgetter('x1','y1'))
     sorted(AllSupports, key=attrgetter('x1','y1'))
     sorted(AllForces, key=attrgetter('x1','y1'))
+
     
-    print("starthere")
+    #LOOP OVER ALL PARTS, AND ASSOCIATE EVERYTHING TO A MEMBER (NOT INCLUDING DFORCE OR MEMEBER AND ONES THAT ARE NOT ON ANY MEMBER)
     allpartcount=0
     for Part in AllParts:
         if(Part.type!='Member' and Part.type!="DForce"):
@@ -468,18 +559,19 @@ def MainParse(form):
             onmember(AllParts, Part, allpartcount)
         allpartcount+=1
     
+    #JUST PRINTING/CHECKING MEMBER ASSOCIATIONS
     for Part in AllParts:
         if(Part.type=='Member'):
             print(Part.connectpart)
         else:
             print(Part.onmember)
     
-    answer=FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces)
     
     
-    #check=42
-    #AllParts=[['ihi'],['wsaasdf'],[12]]
-    #temp=form[0]['x1']
+    #answer=FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces)
+    
+    
+    #answer=42
     print(answer)
     return answer
 

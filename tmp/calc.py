@@ -42,13 +42,61 @@ def simple(request):
     canvas.print_png(response)
     return response
 
+class points:
+    def __init__(self):
+        points=[]
+    def add(self, x1t, y1t, partt):
+        #check if point already exists (probably need to be optimized), if exist return position
+        matchcount=0
+        for pos1 in range(len(points)):
+            if(points[pos1][0]==x1t and points[pos1][1]==y1t and points[pos1][2]==partt):
+                matchount+=1
+                return pos1
+        
+        #add to points
+        if(matchcount==0):
+            temp=[x1t, y1t, partt]
+            points.append(temp) 
+            return len(points)-1
+    def getX(self,x):
+        return points[x][0]
+    def getY(self,x):
+        return points[x][1]
+    def getPart(self,x):
+        return points[x][2]
+        
+def connections:
+    #add connections (pos of the point in the points array)
+    def __init__(self):
+        connections=[]
+    def add(self, c1t, c2t, member):
+    #check if connection already exists (probably need to be optimized)
+        matchcount=0
+        for connection in connections:
+            if((connection[0]==c1t or connection[0]==c2t) and (connection[1]==c1t or connection[1]==c2t)):
+                matchcount+=1
+        if(matchcount==0):
+            if(points.getX(c1t)<=points.getX(c2t)):
+                temp=[c1t, c2t, member]
+                connections.append(temp)
+            else:
+                temp=[c2t, c1t, member]
+                connections.append(temp)
+
 class member:
     connectpart=[]
     def __init__(self, x1t, y1t, x2t, y2t, it, et, areat,namet):
-        self.x1=float(min(x1t,x2t))
-        self.y1=float(min(y1t, y2t))
-        self.x2=float(max(x2t, x1t))
-        self.y2=float(max(y2t, y1t))
+        if( (float(min(x1t,x2t))==x1t) or (x1t==x2t and y1t==float(max(y1t,y2t)))):
+            self.x1=x1t
+            self.y1=y1t
+            self.x2=x2t
+            self.y2=y2t
+        else:
+            self.x1=x2t
+            self.y1=y2t
+            self.x2=x1t
+            self.y2=y1t
+
         self.i=float(it)
         self.e=float(et)
         self.area=float(areat)
@@ -56,13 +104,18 @@ class member:
         self.name=namet
         self.type='Member'
         
-    
+        #c1=points.add(x1t, y1t)
+        #c2=points.add(x2t, y2t)
+        
+    '''
     def addjoint (self, jointt, x1t, y1t):
         if(self.x1==x1t and self.y1==y1t):
             self.joint1={'type': jointt}
         elif(self.x2==x1t and self.y2==y1t):
             self.joint2={'type': jointt}
         #ignoring mid member joints for now
+    '''   
+    
 
 class joint:
     onmember=[]
@@ -96,6 +149,7 @@ class force:
         self.type=typet
         self.magnitude = float(magnitudet)
         self.name=namet
+        self.class='Force'
     def getx1(self):
         return self.x1
     def gettype(self):
@@ -127,17 +181,71 @@ def onmember(AllParts, Part, partcount):
     allcount=0
     for Member in AllParts:
         if(Member.type=='Member'):
+            #algo for testing if on member
             if(Part.x1>=Member.x1 and Part.x1<=Member.x2):
                 v1=[Member.x2-Member.x1, Member.y2-Member.y1]
                 v2=[Member.x2-Part.x1, Member.y2-Part.y1]
                 xp = v1[0]*v2[1]-v1[1]*v2[0]
                 if(xp==0):
+                    #on member numbered allcount by AllParts
                     Part.onmember.append(allcount)
+                    #On part numbered partcount by AllParts
                     Member.connectpart.append(partcount)
                     return 0
         allcount+=1
 
+def PointsFromMember(Member):
+    templist=[]
+    temp1=[Member.x1, Member.y1, Member]
+    temp2=[Member.x2, Member.y2, Member]
+    
+    #very inefficient :/
+    #check for conflicts(position and type){BUG}
+    for connectpart in Member.connectpart:
+        conflict=bool(False)
+        for temps in templist:
+            #if it is a support type, check if it is at end of member, if not just add
+            if (AllParts[connectpart].type=='YSupport' or AllParts[connectpart].type=="PinSupport"or AllParts[connectpart].type=="XSupport"or AllParts[connectpart].type=="FixedSupport")
+                if(AllParts[connectpart].x1==Member.x1 and AllParts[connectpart].y1==Member.y1):
+                    temp1[2]=AllParts[connectpart]
+                    conflict=bool(True)
+                elif(AllParts[connectpart].x1==Member.x2 and AllParts[connectpart].y1==Member.y2):
+                    temp2[2]=AllParts[connectpart]
+                    conflict=bool(True)
+            #if it is a joint type, make sure it is at end of member
+            elif(AllParts[connectpart].type=='Hinge' or AllParts[connectpart].type=='FixedJoint'):
+                if(AllParts[connectpart].x1==Member.x1 and AllParts[connectpart].y1==Member.y1):
+                    temp1[2]=AllParts[connectpart]
+                elif(AllParts[connectpart].x1==Member.x2 and AllParts[connectpart].y1==Member.y2):
+                    temp2[2]=AllParts[connectpart]
+                conflict=bool(True)
+            #else:
+                #confilct=bool(True)
+                
+        #if no conflict add to templist
+        if(conflict==False):
+            temp=[AllParts[connectpart].x1, AllParts[connectpart].y1, AllParts[connectpart]]
+            templist.append(temp)
+    
+    
+    templist.append(temp2)#add endpoint 2
+    #sort (insertion sort?) SORT IS NOT COMPLETELY ACCURATE!! (WILL NEED TO BE FIXED) (currently sort by x ASC then y DESC, but need to sort relative to the member){BUG}
+    sortlist=[]
+    for pos1 in range(len(templist)):
+        #if pos is greater than the last element, then just append
+        if(sortlist[len(sortlist)-1][x]<templist[pos1][x] or (sortlist[len(sortlist)-1][x]==templist[pos1][x] and sortlist[len(sortlist)-1][y]>templist[pos1][y])):
+            sortlist.append(templist[pos1])
+        #else loop until appropriate spot
+        for pos2 in range(len(sortlist)):
+            if(sortlist[pos2][x]>templist[pos1][x] or (sortlist[pos2][x]==templist[pos1][x] and sortlist[pos2][y]<templist[pos1][y])):
+                sortlist.insert(pos2, templist[pos1])
+    sortlist.insert[0,temp1] #add endpoint 1 to front of list
+    
+    return sortlist
+    
+
 def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
+    #KIND OF DONE, BUT A LOT OF BUGS (DITCHING THIS EFFORT FOR MSA... FOR NOW)
     startx=AllSupports[0].x1
     starty=AllSupports[0].y1
     ZMoment=[]
@@ -397,7 +505,10 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             
     return (answer)
 
+
+
 def YShearCalc(Member,AllParts):
+    #NOT BY ANY MEANS CLOSE TO BEING DONE, just a PLACEHOLDER FOR NOW
     TempParts=[]
     for x in Member.connectpart:
         TempParts.append(AllParts[x])
@@ -413,6 +524,8 @@ def MainParse(form):
     AllJoints=[]
     AllSupports=[]
     AllForces=[]
+    points= points()
+    connections = connections()
     ObjNum=0
     
     #Will need to be deleted in the future
@@ -429,7 +542,7 @@ def MainParse(form):
     #form=[{u'y2': 225, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 10, u'servx2': 40, u'x2': 600, u'servy2': 10, u'y1': 225, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 40, u'servx2': 50, u'x2': 750, u'servy2':10, u'y1': 225, u'x1': 600, u'type': u'member'}, {u'name': u'S2', u'servy1': 10, u'servx1': 10, u'y1': 225, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'P3', u'servy1': 10, u'servx1': 40, u'y1': 225, u'x1': 600, u'type': u'Hinge'}, {u'name': u'S4', u'servy1': 10, u'servx1': 50, u'y1': 225, u'x1': 750, u'type': u'YSupport'}, {u'slope': u'infinity', u'f1': u'1', u'f2': u'5', u'y2': 0, u'r1': u'3', u'r2': u'6', u'servy1': 10, u'servx1': 13, u'servx2': 16, u'direction': u'Global-Y', u'x2': 1, u'servy2': 10, u'onmember': 0, u'y1': 0, u'x1': 0, u'type':u'DForce', u'name': u'D5'}]
     #same as above but tilted with y force (not able to solve for some reason)
     #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 5, u'i': 100, u'servx1': 15, u'servx2': 25, u'x2': 375, u'servy2': 15, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10,u'servy1': 15, u'i': 100, u'servx1': 25, u'servx2': 40, u'x2': 600, u'servy2': 15, u'y1': 150, u'x1': 375, u'type': u'member'}, {u'name': u'P2', u'servy1': 15,u'servx1': 25, u'y1': 150, u'x1': 375, u'type': u'Hinge'}, {u'name': u'S3', u'servy1': 15, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 5, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F5', u'servy1': 15, u'servx1': 34, u'magnitude': u'100', u'y1': 510, u'x1': 510, u'type': u'YForce'}]
-    form=[{u'y2': 225, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 5, u'servx2': 40, u'x2': 600, u'servy2': 10, u'y1': 225, u'x1': 75, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 40, u'servx2': 60, u'x2': 900, u'servy2': 10, u'y1': 225, u'x1': 600, u'type': u'member'}, {u'name': u'P2', u'servy1': 10, u'servx1': 40, u'y1': 225, u'x1': 600, u'type': u'Hinge'}, {u'name': u'S3', u'servy1': 10, u'servx1': 5, u'y1': 225, u'x1': 75, u'type': u'PinSupport'}, {u'name': u'S4', u'servy1': 10, u'servx1': 60, u'y1': 225, u'x1': 900, u'type': u'YSupport'}, {u'name': u'F5', u'servy1': 10, u'servx1': 10, u'magnitude': u'8', u'y1':150, u'x1': 150, u'type': u'YForce'}, {u'name': u'S6', u'servy1': 10, u'servx1': 50, u'y1': 225, u'x1': 750, u'type': u'YSupport'}]
+    #form=[{u'y2': 225, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 5, u'servx2': 40, u'x2': 600, u'servy2': 10, u'y1': 225, u'x1': 75, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 40, u'servx2': 60, u'x2': 900, u'servy2': 10, u'y1': 225, u'x1': 600, u'type': u'member'}, {u'name': u'P2', u'servy1': 10, u'servx1': 40, u'y1': 225, u'x1': 600, u'type': u'Hinge'}, {u'name': u'S3', u'servy1': 10, u'servx1': 5, u'y1': 225, u'x1': 75, u'type': u'PinSupport'}, {u'name': u'S4', u'servy1': 10, u'servx1': 60, u'y1': 225, u'x1': 900, u'type': u'YSupport'}, {u'name': u'F5', u'servy1': 10, u'servx1': 10, u'magnitude': u'8', u'y1':150, u'x1': 150, u'type': u'YForce'}, {u'name': u'S6', u'servy1': 10, u'servx1': 50, u'y1': 225, u'x1': 750, u'type': u'YSupport'}]
     for x in form:
         print(x['type'])
         if(x['type']=='member'):
@@ -444,7 +557,7 @@ def MainParse(form):
             tempsupport = support(x['servx1'], x['servy1'], x['type'],x['name'])
             AllParts.append(tempsupport)
             AllSupports.append(tempsupport)
-        elif(x['type']=='Xforce' or x['type']=='YForce' or x['type']=='MSupport' or x['type']=='DSupport'):
+        elif(x['type']=='Xforce' or x['type']=='YForce' or x['type']=='MForce'):
             tempforce = force(x['servx1'], x['servy1'], x['type'], x['magnitude'],x['name'])
             AllParts.append(tempforce)
             AllForces.append(tempforce)
@@ -454,13 +567,16 @@ def MainParse(form):
             AllForces.append(tempdforce)
         ObjNum+=1
     
+    
+    #SORT EVERYTHING BY THEIR COORDINATES.... NEED BETTER WAY TO SORT
     sorted(AllParts, key=attrgetter('x1','y1'))
     sorted(AllMembers, key=attrgetter('x1','y1'))
     sorted(AllJoints, key=attrgetter('x1','y1'))
     sorted(AllSupports, key=attrgetter('x1','y1'))
     sorted(AllForces, key=attrgetter('x1','y1'))
+
     
-    print("starthere")
+    #LOOP OVER ALL PARTS, AND ASSOCIATE EVERYTHING TO A MEMBER (NOT INCLUDING DFORCE OR MEMEBER AND ONES THAT ARE NOT ON ANY MEMBER)
     allpartcount=0
     for Part in AllParts:
         if(Part.type!='Member' and Part.type!="DForce"):
@@ -468,18 +584,46 @@ def MainParse(form):
             onmember(AllParts, Part, allpartcount)
         allpartcount+=1
     
+    #JUST PRINTING/CHECKING MEMBER ASSOCIATIONS
     for Part in AllParts:
         if(Part.type=='Member'):
             print(Part.connectpart)
         else:
             print(Part.onmember)
     
-    answer=FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces)
+    #start point/ connection making
+    for member in AllMembers:
+        sortlist=PointsFromMember(member)
+        connectionlist=[]
+        for p in sortlist:
+            #create point and add to connectionlist, Returns position of the point in the points array
+            connectionlist.append(points.add(p[0], p[1], p[2]))
+        pos1=0
+        while pos1 in range(len(connectionlist)-1):
+            notforce=bool(False)
+            i=1
+            forcelist=[]
+            while notforce==False:
+                if(points.getPart(connectionlist[pos1+i]).type=='XForce' or points.getPart(connectionlist[pos1+i]).type=='YForce' or points.getPart(connectionlist[pos1+i]).type=='MForce' or points.getPart(connectionlist[pos1+i]).type=='DForce'):
+                    forcelist.append(points.getPart(connectionlist[pos+i]))
+                    i+=1
+                else:
+                    notforce=True
+                
+            #add connections (position of the point in the points array)
+            #get lenght between two points
+            length= sqrt(abs((points.getX(connectionlist[pos1+i])-points.getX(connectionlist[pos1]))**2+(points.getY(connectionlist[pos1+i])-points.getY(connectionlist[pos1]))**2))
+            #get angle of the line, with respect to x-axis and the first point
+            angle = math.atan((points.getX(connectionlist[pos1])-points.getX(connectionlist[pos1+i]))/(points.getY(connectionlist[pos1])-points.getY(connectionlist[pos1+i])))
+            
+            connections.append(connectionlist[pos1], connectionlist[pos1+i], member.e, member.i, angle, length, forcelist)
+            pos1=pos1+i
+            
+    
+    #answer=FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces)
     
     
-    #check=42
-    #AllParts=[['ihi'],['wsaasdf'],[12]]
-    #temp=form[0]['x1']
+    answer=42
     print(answer)
     return answer
 
