@@ -23,6 +23,7 @@ from decimal import Decimal
 from operator import itemgetter, attrgetter
 
 # file charts.py, a stupid little test to see if plot was working
+'''
 def simple(request):
     fig = Figure()
     ax = fig.add_subplot(111)
@@ -41,6 +42,7 @@ def simple(request):
     response = django.http.HttpResponse(content_type='image/png')
     canvas.print_png(response)
     return response
+'''
 
 class Points:
     def __init__(self):
@@ -993,11 +995,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                 TempZMoment+=(((force.x2-force.x1)/2+force.x1)-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-Y"):
-                angle = math.atan(slope)
-                f1x = f1*math.sin(angle)
-                f1y = f1*math.cos(angle)
-                f2x = f2*math.sin(angle)
-                f2y = f2*math.cos(angle)
+                angle = math.atan(force.slope)
+                f1x = force.f1*math.sin(angle)
+                f1y = force.f1*math.cos(angle)
+                f2x = force.f2*math.sin(angle)
+                f2y = force.f2*math.cos(angle)
                 
                 TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                 TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1009,11 +1011,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                 TempZMoment+=((force.y2-force.y1)/2-starty)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumX+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-X"):
-                angle = math.atan(slope)
-                f1x = f1*math.sin(angle)
-                f1y = f1*math.cos(angle)
-                f2x = f2*math.sin(angle)
-                f2y = f2*math.cos(angle)
+                angle = math.atan(force.slope)
+                f1x = force.f1*math.sin(angle)
+                f1y = force.f1*math.cos(angle)
+                f2x = force.f2*math.sin(angle)
+                f2y = force.f2*math.cos(angle)
                 
                 TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                 TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1104,11 +1106,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     TempZMoment+=((force.x2-force.x1)/2-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                     SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
                 elif(force.direction=="Local-Y"):
-                    angle = math.atan(slope)
-                    f1x = f1*math.sin(angle)
-                    f1y = f1*math.cos(angle)
-                    f2x = f2*math.sin(angle)
-                    f2y = f2*math.cos(angle)
+                    angle = math.atan(force.slope)
+                    f1x = force.f1*math.sin(angle)
+                    f1y = force.f1*math.cos(angle)
+                    f2x = force.f2*math.sin(angle)
+                    f2y = force.f2*math.cos(angle)
                     
                     TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                     TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1120,11 +1122,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     TempZMoment+=((force.y2-force.y1)/2-starty)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                     SumX+=(force.f1+force.f2)*(force.r2-force.r1)/2
                 elif(force.direction=="Local-X"):
-                    angle = math.atan(slope)
-                    f1x = f1*math.sin(angle)
-                    f1y = f1*math.cos(angle)
-                    f2x = f2*math.sin(angle)
-                    f2y = f2*math.cos(angle)
+                    angle = math.atan(force.slope)
+                    f1x = force.f1*math.sin(angle)
+                    f1y = force.f1*math.cos(angle)
+                    f2x = force.f2*math.sin(angle)
+                    f2y = force.f2*math.cos(angle)
                     
                     TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                     TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1451,4 +1453,4 @@ def MainParse(form):
            print(x[2].name)
     print(connections.connections)
     '''
-    return AlllJson
+    return AllJson

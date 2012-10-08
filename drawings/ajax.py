@@ -25,5 +25,6 @@ def send_form(request, form):
     #DP=[{"type":"member","e":300000,"i":100,"area":10}]
     #d2 = Drawing(drawingpart=DP, create_date=datetime.now())
     #d2.save()
+    #print(temp)
 
     return simplejson.dumps({'message':temp})
