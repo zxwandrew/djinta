@@ -107,13 +107,46 @@ class Member:
         self.i=float(it)
         self.e=float(et)
         self.area=float(areat)
-        self.length = sqrt(abs(self.x1-self.x2)**2+abs(self.y1-self.y2)**2)
+        self.length = float(sqrt(abs(self.x1-self.x2)**2+abs(self.y1-self.y2)**2))
         self.name=namet
+        
+        #actual answers
+        self.dx1=0
+        self.dy1=0
+        self.dm1=0
+        self.dx2=0
+        self.dy2=0
+        self.dm2=0
+
+
         self.type='Member'
         self.connectpart=[]
+    
+    def Get_Details(self):
+        temp={}
+        temp.update({'servx1':self.x1})
+        temp.update({'servy1':self.y1})
+        temp.update({'servx2':self.x2})
+        temp.update({'servy2':self.y2})
         
-        #c1=points.add(x1t, y1t)
-        #c2=points.add(x2t, y2t)
+        temp.update({'dx1':self.dx1})
+        temp.update({'dy1':self.dy1})
+        temp.update({'dm1':self.dm1})
+        temp.update({'dx2':self.dx2})
+        temp.update({'dy2':self.dy2})
+        temp.update({'dm2':self.dm2})
+        
+        temp.update({'i':self.i})
+        temp.update({'e':self.e})
+        temp.update({'area':self.area})
+        temp.update({'length':self.length})
+        temp.update({'name':self.name})
+        temp.update({'type':self.type})
+        temp.update({'connectpart':self.connectpart})
+        
+
+        return temp
+        
         
     '''
     def addjoint (self, jointt, x1t, y1t):
@@ -134,6 +167,26 @@ class joint:
         self.name=namet
         self.onmember=[]
         
+        #actual answers
+        self.dx1=0
+        self.dy1=0
+        self.dm1=0
+    
+    def Get_Details(self):
+        temp={}
+        temp.update({'servx1':self.x1})
+        temp.update({'servy1':self.y1})
+        
+        temp.update({'dx1':self.dx1})
+        temp.update({'dy1':self.dy1})
+        temp.update({'dm1':self.dm1})
+
+        temp.update({'name':self.name})
+        temp.update({'type':self.type})
+        temp.update({'onmember': self.onmember})
+
+        return temp
+        
 class support:
     magx=None
     magy=None
@@ -147,6 +200,32 @@ class support:
         self.name=namet
         self.onmember=[]
         
+        #actual answers
+        self.dx1=0
+        self.dy1=0
+        self.dm1=0
+        self.fx1=0
+        self.fy1=0
+        self.fm1=0
+        
+    def Get_Details(self):
+        temp={}
+        temp.update({'servx1':self.x1})
+        temp.update({'servy1':self.y1})
+        
+        temp.update({'dx1':self.dx1})
+        temp.update({'dy1':self.dy1})
+        temp.update({'dm1':self.dm1})
+        temp.update({'fx1':self.dx1})
+        temp.update({'fy1':self.dy1})
+        temp.update({'fm1':self.dm1})
+
+        temp.update({'name':self.name})
+        temp.update({'type':self.type})
+        temp.update({'onmember': self.onmember})
+
+        return temp
+        
         
 class force:
     
@@ -158,6 +237,7 @@ class force:
         self.magnitude = float(magnitudet)
         self.name=namet
         self.category='Force'
+        self.onmember=[]
     def getx1(self):
         return self.x1
     def gettype(self):
@@ -166,6 +246,19 @@ class force:
         return self.y1
     def getmagnitude(self):
         return self.magnitude
+    
+    def Get_Details(self):
+        temp={}
+        temp.update({'servx1':self.x1})
+        temp.update({'servy1':self.y1})
+
+        temp.update({'name':self.name})
+        temp.update({'category':self.category})
+        temp.update({'type':self.type})
+        temp.update({'magnitude':self.magnitude})
+        temp.update({'onmember': self.onmember})
+
+        return temp
 
 class dforce:
     def __init__(self, x1t, y1t, x2t,y2t, typet, f1t, f2t, directiont, onmembert, r1t, r2t, slopet, namet):
@@ -184,6 +277,29 @@ class dforce:
         self.name=namet
     def gettype(self):
         return self.type
+    
+    def Get_Details(self):
+        temp={}
+        temp.update({'servx1':self.x1})
+        temp.update({'servy1':self.y1})
+        temp.update({'servx2':self.x2})
+        temp.update({'servy2':self.y2})
+        
+        temp.update({'f1':self.f1})
+        temp.update({'f2':self.f2})
+        temp.update({'r1':self.r2})
+        temp.update({'r2':self.r2})
+
+
+        temp.update({'name':self.name})
+        temp.update({'direction':self.direction})
+        temp.update({'slope':self.slope})
+        temp.update({'category':self.category})
+        temp.update({'type':self.type})
+        temp.update({'magnitude':self.magnitude})
+        temp.update({'onmember': self.onmember})
+
+        return temp
 
 def onmember(AllParts, Part, partcount):
     allcount=0
@@ -348,7 +464,11 @@ def MatrixCreation(connections, points):
         Matrix_K[targetpoints[2]][targetpoints[5]]+= (2*e*i/l)
         Matrix_K[targetpoints[5]][targetpoints[2]]+= (2*e*i/l)
     
+    
+    
     ForceVector=[]
+    CheckedPoints=[]
+    Force_Point_Assoc=[]
     x=0
     #create empty forcevector
     while x in range(pos):
@@ -358,56 +478,146 @@ def MatrixCreation(connections, points):
     f=0
     #generate force matrix
     for connection in connections.connections:
-        #For Fixed Support (first point)
-        if(points.getPart(connection['c1']).type=='FixedSupport'):
-            #x direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][0]]=x
-            f+=1
-            #y direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][1]]=x
-            f+=1
-            #m direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][2]]=x
-            f+=1
-        #For X Support
-        if(points.getPart(connection['c1']).type=='XSupport'):
-            #x direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][0]]=x
-            f+=1
-        #For Y Support
-        if(points.getPart(connection['c1']).type=='YSupport'):
-            #y direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][0]]=x
-            f+=1
-        #For Pin Support
-        if(points.getPart(connection['c1']).type=='PinSupport'):
-            #x direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][0]]=x
-            f+=1
-            #y direction unknown
-            tempname='F'+str(f)
-            x=Symbol(tempname)
-            variable.append(x)
-            ForceVector[pointrecord[connection['c1']][0]]=x
-            f+=1
+        #check so wont have to repeat
+        if(connection['c1'] not in CheckedPoints):
+            #For Fixed Support
+            if(points.getPart(connection['c1']).type=='FixedSupport'):
+                #x direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x']
+                Force_Point_Assoc.append(temp)                
+                f+=1
+                #y direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][1]]=x
+                temp=[x,points.getPart(connection['c1']),'y']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+                #m direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #For X Support
+            if(points.getPart(connection['c1']).type=='XSupport'):
+                #x direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #For Y Support
+            if(points.getPart(connection['c1']).type=='YSupport'):
+                #y direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'y']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #For Pin Support
+            if(points.getPart(connection['c1']).type=='PinSupport'):
+                #x direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+                #y direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'y']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #Add to list of points that have been checked
+            CheckedPoints.append(connection['c1'])
+            
+            #check so wont have to repeat
+        if(connection['c2'] not in CheckedPoints):
+            #For Fixed Support
+            if(points.getPart(connection['c2']).type=='FixedSupport'):
+                #x direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+                #y direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+                #m direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #For X Support
+            if(points.getPart(connection['c2']).type=='XSupport'):
+                #x direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #For Y Support
+            if(points.getPart(connection['c2']).type=='YSupport'):
+                #y direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #For Pin Support
+            if(points.getPart(connection['c2']).type=='PinSupport'):
+                #x direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+                #y direction unknown
+                tempname='F'+str(f)
+                x=Symbol(tempname)
+                variable.append(x)
+                ForceVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y']
+                Force_Point_Assoc.append(temp) 
+                f+=1
+            #Add to list of points that have been checked
+            CheckedPoints.append(connection['c2'])
+        #NOW THAT BOTH POINTS HAVE BEEN CHECKED FOR FORCES, NOW FOR FORCELIST
+        
+        
         #IF FORCES__________________________
         #Loop through the list of forces
         for force in connection['forcelist']:
@@ -436,8 +646,12 @@ def MatrixCreation(connections, points):
                 if(force.getx1()==points.getX(connection['c2']) and force.gety1()==points.getY(connection['c2'])):
                     ForceVector[pointrecord[connection['c2']][2]]+=force.getmagnitude()
     
+    
+    
     #generate deflection vector
     DeflectionVector=[]
+    Deflection_Point_Assoc=[]
+    CheckedPoints2=[]
     x=0
     #create empty forcevector
     while x in range(pos):
@@ -447,130 +661,287 @@ def MatrixCreation(connections, points):
     d=0
     #generate deflection vector
     for connection in connections.connections:
+        
         print(points.getPart(connection['c1']).type)
-        #For X Support
-        if(points.getPart(connection['c1']).type=='XSupport'):
-            #y direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][1]]=x
-            d+=1
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][2]]=x
-            d+=1
-        #For Y Support
-        if(points.getPart(connection['c1']).type=='XSupport'):
-            #X direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][0]]=x
-            d+=1
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][2]]=x
-            d+=1
-        #For Pin Support
-        if(points.getPart(connection['c1']).type=='PinSupport'):
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][2]]=x
-            d+=1
-        #For Members
-        if(points.getPart(connection['c1']).type=='Member'):
-            #X direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][0]]=x
-            d+=1
-            #y direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][1]]=x
-            d+=1
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c1']][2]]=x
-            d+=1
+        #check so wont have to repeat
+        if(connection['c1'] not in CheckedPoints2):
+            print(d,connection['c1'] )
+            #For X Support
+            if(points.getPart(connection['c1']).type=='XSupport'):
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][1]]=x
+                temp=[x,points.getPart(connection['c1']),'y']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Y Support
+            if(points.getPart(connection['c1']).type=='XSupport'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Pin Support
+            if(points.getPart(connection['c1']).type=='PinSupport'):
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Members
+            if(points.getPart(connection['c1']).type=='Member'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x1']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][1]]=x
+                temp=[x,points.getPart(connection['c1']),'y1']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m1']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Hinge
+            if(points.getPart(connection['c1']).type=='Hinge'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][1]]=x
+                temp=[x,points.getPart(connection['c1']),'y']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Fixed Joint
+            if(points.getPart(connection['c1']).type=='FixedJoint'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][0]]=x
+                temp=[x,points.getPart(connection['c1']),'x']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][1]]=x
+                temp=[x,points.getPart(connection['c1']),'y']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c1']][2]]=x
+                temp=[x,points.getPart(connection['c1']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+
+            CheckedPoints2.append(connection['c1'])
             
         #For point 2__________________________________________________
-        print(points.getPart(connection['c2']).type)
-        #for X support
-        if(points.getPart(connection['c2']).type=='XSupport'):
-            #y direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][1]]=x
-            d+=1
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][2]]=x
-            d+=1
-        #For Y Support
-        if(points.getPart(connection['c2']).type=='XSupport'):
-            #X direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][0]]=x
-            d+=1
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][2]]=x
-            d+=1
-        #For Pin Support
-        if(points.getPart(connection['c2']).type=='PinSupport'):
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][2]]=x
-            d+=1
-        #For Members
-        if(points.getPart(connection['c2']).type=='Member'):
-            #X direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][0]]=x
-            print(x)
-            d+=1
-            #y direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][1]]=x
-            d+=1
-            #m direction unknown
-            tempname='D'+str(d)
-            x=Symbol(tempname)
-            variable.append(x)
-            DeflectionVector[pointrecord[connection['c2']][2]]=x
-            d+=1
+        if(connection['c2'] not in CheckedPoints2):
+            print(d,connection['c2'] )
+            print(points.getPart(connection['c2']).type)
+            #for X support
+            if(points.getPart(connection['c2']).type=='XSupport'):
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Y Support
+            if(points.getPart(connection['c2']).type=='XSupport'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Pin Support
+            if(points.getPart(connection['c2']).type=='PinSupport'):
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            #For Members
+            if(points.getPart(connection['c2']).type=='Member'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x2']
+                Deflection_Point_Assoc.append(temp)
+                d+=1
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y2']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m2']
+                Deflection_Point_Assoc.append(temp)
+                d+=1
+            #For Hinge
+            if(points.getPart(connection['c2']).type=='Hinge'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x']
+                Deflection_Point_Assoc.append(temp) 
+                print(x)
+                d+=1
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y']
+                Deflection_Point_Assoc.append(temp)
+                print(x)
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                print(x)
+                d+=1
+            #For Fixed Joint
+            if(points.getPart(connection['c2']).type=='FixedJoint'):
+                #X direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][0]]=x
+                temp=[x,points.getPart(connection['c2']),'x']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #y direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][1]]=x
+                temp=[x,points.getPart(connection['c2']),'y']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+                #m direction unknown
+                tempname='D'+str(d)
+                x=Symbol(tempname)
+                variable.append(x)
+                DeflectionVector[pointrecord[connection['c2']][2]]=x
+                temp=[x,points.getPart(connection['c2']),'m']
+                Deflection_Point_Assoc.append(temp) 
+                d+=1
+            CheckedPoints2.append(connection['c2'])
+                
             
 
     ForceVector=Matrix(ForceVector)
     DeflectionVector=Matrix(DeflectionVector)
     KMatrix= Matrix(Matrix_K)
+    
+    '''
+    print("fpa")
+    print(Force_Point_Assoc)
+    print("dpa")
+    print(Deflection_Point_Assoc)
+    print('checkedpoints')
+    print(CheckedPoints, CheckedPoints2)
+    '''
 
-    return KMatrix, pointrecord , ForceVector, DeflectionVector, variable
+    return KMatrix, pointrecord , ForceVector, DeflectionVector, variable, Force_Point_Assoc, Deflection_Point_Assoc
 
 def ForceVectorCreation():
     return 0
@@ -876,12 +1247,18 @@ def MainParse(form):
     #form=[{u'y2': 225, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 5, u'servx2': 40, u'x2': 600, u'servy2': 10, u'y1': 225, u'x1': 75, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 40, u'servx2': 60, u'x2': 900, u'servy2': 10, u'y1': 225, u'x1': 600, u'type': u'member'}, {u'name': u'P2', u'servy1': 10, u'servx1': 40, u'y1': 225, u'x1': 600, u'type': u'Hinge'}, {u'name': u'S3', u'servy1': 10, u'servx1': 5, u'y1': 225, u'x1': 75, u'type': u'PinSupport'}, {u'name': u'S4', u'servy1': 10, u'servx1': 60, u'y1': 225, u'x1': 900, u'type': u'YSupport'}, {u'name': u'F5', u'servy1': 10, u'servx1': 10, u'magnitude': u'8', u'y1':150, u'x1': 150, u'type': u'YForce'}, {u'name': u'S6', u'servy1': 10, u'servx1': 50, u'y1': 225, u'x1': 750, u'type': u'YSupport'}]
     
     #canteliver beam
-    form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
+    #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 10, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 300, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2':30, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'name': u'S2', u'servy1': 25, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'YSupport'}, {u'name': u'S3',u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 30, u'servx1': 45, u'y1': 225, u'x1': 675, u'type': u'XSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100',u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 30, u'servx1': 45, u'magnitude': u'500', u'y1': 675, u'x1': 675, u'type': u'MForce'}]
     #Use the one below currently, 21x21
-    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
+    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
     #crazy mess
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 25, u'servx2': 35, u'x2': 525, u'servy2':20, u'y1': 375, u'x1': 375, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2': 25, u'y1': 375, u'x1': 525, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 45, u'servx2': 45, u'x2': 675, u'servy2': 10, u'y1': 300, u'x1': 675, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 45, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 525, u'x1': 675, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M5', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 35, u'servx2': 20, u'x2':300, u'servy2': 10, u'y1': 450, u'x1': 525, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M6', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 20, u'servx2': 10, u'x2': 150, u'servy2': 20, u'y1': 525, u'x1': 300, u'type': u'member'}, {u'name': u'P7', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150,u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 20, u'servx1': 35, u'y1': 375, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P9', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P10', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P11', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P12', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P13', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1':300, u'type': u'FixedJoint'}, {u'name': u'S14', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'XSupport'}, {u'name': u'S15', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'XSupport'}, {u'name': u'S16', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'YSupport'}, {u'name': u'S17', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'YSupport'}, {u'name': u'S18', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'PinSupport'}, {u'name': u'S19', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1': 300, u'type': u'PinSupport'}, {u'name': u'F20', u'servy1': 12, u'servx1': 25, u'magnitude': 1, u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F21', u'servy1': 13, u'servx1': 39, u'magnitude': 1, u'y1': 585, u'x1': 585, u'type': u'YForce'}]
+    #three beam, tilted, with y and moment
+    #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 25, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 25, u'servx2': 40, u'x2': 600, u'servy2':20, u'y1': 300, u'x1': 375, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 40, u'servx2': 50, u'x2': 750, u'servy2': 20, u'y1': 375, u'x1': 600, u'type': u'member'}, {u'name': u'S3', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'S4', u'servy1': 20, u'servx1': 50, u'y1': 375, u'x1': 750, u'type': u'FixedSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'P6',u'servy1': 25, u'servx1': 25, u'y1': 300, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P7', u'servy1': 20, u'servx1': 40, u'y1': 375, u'x1': 600, u'type': u'FixedJoint'}, {u'name': u'F8', u'servy1': 20, u'servx1': 40, u'magnitude': u'90', u'y1': 600, u'x1': 600, u'type':u'MForce'}]
+    #three beam
+    #form=[{u'y2': 450, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 15, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 20, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 450, u'x1': 300, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 30, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 450, u'x1': 450, u'type': u'member'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}, {u'name': u'S4', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'YSupport'}, {u'name': u'F5', u'servy1': 15, u'servx1': 20, u'magnitude': u'100', u'y1': 300, u'x1': 300, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 450, u'x1': 450, u'type': u'MForce'}]
+    #simplejson
+    #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 20, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'F2', u'servy1': 20, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}]
     
     for x in form:
         print(x['type'])
@@ -955,7 +1332,7 @@ def MainParse(form):
                 
             #add connections (position of the point in the points array)
             #get length between two points
-            length= sqrt(abs((points.getX(connectionlist[pos1+i])-points.getX(connectionlist[pos1]))**2+(points.getY(connectionlist[pos1+i])-points.getY(connectionlist[pos1]))**2))
+            length= abs(sqrt(abs((points.getX(connectionlist[pos1+i])-points.getX(connectionlist[pos1]))**2+(points.getY(connectionlist[pos1+i])-points.getY(connectionlist[pos1]))**2)))
             #get angle of the line, with respect to x-axis and the first point (if no slope, return 0)
             if(points.getX(connectionlist[pos1])-points.getX(connectionlist[pos1+i])==0):
                 angle=math.pi/2
@@ -967,14 +1344,13 @@ def MainParse(form):
             
     
     #answer=FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces)
-    KMatrix, pointrecord, ForceVector, DeflectionVector, variable =MatrixCreation(connections,points)
+    KMatrix, pointrecord, ForceVector, DeflectionVector, variable, Force_Point_Assoc, Deflection_Point_Assoc =MatrixCreation(connections,points)
     
-    print("dadfas")
-    print(KMatrix)
-    
+    #print(KMatrix)
     #print pointrecord
     print ForceVector
     print DeflectionVector
+    #print Force_Point_Assoc, Deflection_Point_Assoc
     #print variable
     
     '''
@@ -1003,21 +1379,66 @@ def MainParse(form):
     print(fm)
     print(variable)
     k=Matrix([[200000.000000000, 0, 0, -200000.000000000, 0, 0],[0, 106666.666666667, 800000.000000000, 0, -106666.666666667, 800000.000000000],[0, 800000.000000000, 8000000.00000000, 0, 0, 4000000.00000000],[-200000.000000000, 0, 0, 200000.000000000, 0, 0],[0, -106666.666666667, -800000.000000000, 0, 106666.666666667, -800000.000000000],[0, 800000.000000000, 4000000.00000000, 0, -800000.000000000, 8000000.00000000]])
-    
     print(k*fm)
     '''
     
-    print(KMatrix*DeflectionVector-ForceVector)
-    
+    #print(KMatrix*DeflectionVector-ForceVector)
     answer=solve(KMatrix*DeflectionVector-ForceVector, variable)
-    print(answer)
+    #print(answer)
+    
+    for assoc in Force_Point_Assoc:
+        if(assoc[2]=='x'):
+            assoc[1].fx1=float(answer[assoc[0]])
+            #print(assoc[1].fx)
+            #print(answer[assoc[0]])
+        if(assoc[2]=='y'):
+            assoc[1].fy1=float(answer[assoc[0]])
+        if(assoc[2]=='m'):
+            assoc[1].fm1=float(answer[assoc[0]])
+    
+    for assoc in Deflection_Point_Assoc:
+        if(assoc[1].type=='Member'):
+            if(assoc[2]=='x1'):
+                assoc[1].dx1=float(answer[assoc[0]])
+            if(assoc[2]=='x2'):
+                assoc[1].dx2=float(answer[assoc[0]])
+            if(assoc[2]=='y1'):
+                assoc[1].dy1=float(answer[assoc[0]])
+            if(assoc[2]=='y2'):
+                assoc[1].dy2=float(answer[assoc[0]])
+            if(assoc[2]=='m1'):
+                assoc[1].dm1=float(answer[assoc[0]])
+            if(assoc[2]=='m2'):
+                assoc[1].dm2=float(answer[assoc[0]])
+        else:
+            if(assoc[2]=='x'):
+                assoc[1].dx1=float(answer[assoc[0]])
+            if(assoc[2]=='y'):
+                assoc[1].dy1=float(answer[assoc[0]])
+            if(assoc[2]=='m'):
+                assoc[1].dm1=float(answer[assoc[0]])
     
     answer=42
-    print(answer)
+    #print(answer)
+    
+    AllJson={}
+    #print member just to test
+    for part in AllParts:
+        temp=part.Get_Details()
+        AllJson.update({part.name:temp})
+    
+    #print(AllJson)
+    
+    print(simplejson.dumps(AllJson))
+    
+
+    '''
+    #print points
     for x in points.points:
            print(x[2].name)
     print(connections.connections)
     return answer
+    '''
 
 output = MainParse(sys.argv[1])
     
