@@ -323,7 +323,7 @@ def PointsFromMember(Member, AllParts):
     temp2=[Member.x2, Member.y2, Member]
     
     
-    print(Member.x1, Member.y1, ' ', Member.x2, Member.y2)
+    #print(Member.x1, Member.y1, ' ', Member.x2, Member.y2)
     
     #very inefficient :/
     #check for conflicts(position and type){BUG}
@@ -390,7 +390,7 @@ def MatrixCreation(connections, points):
             pointrecord.update({connection['c2']:[pos,pos+1,pos+2]})
             pos+=3
     
-    print(pointrecord)
+    #print(pointrecord)
     
     #Generate matrix of 0s
     Matrix_K=[]
@@ -481,7 +481,7 @@ def MatrixCreation(connections, points):
         #check so wont have to repeat
         if(connection['c1'] not in CheckedPoints):
             #For Fixed Support
-            print('one', f, points.getPart(connection['c1']).type)
+            #print('one', f, points.getPart(connection['c1']).type)
             if(points.getPart(connection['c1']).type=='FixedSupport'):
                 #x direction unknown
                 tempname='F'+str(f)
@@ -536,8 +536,8 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c1']][0]]=x
                 temp=[x,points.getPart(connection['c1']),'x']
                 Force_Point_Assoc.append(temp) 
-                print(f)
-                print(ForceVector)
+                #print(f)
+                #print(ForceVector)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
@@ -553,7 +553,7 @@ def MatrixCreation(connections, points):
             #check so wont have to repeat
         
         if(connection['c2'] not in CheckedPoints):
-            print('two',f, points.getPart(connection['c2']).type)
+            #print('two',f, points.getPart(connection['c2']).type)
             #For Fixed Support
             if(points.getPart(connection['c2']).type=='FixedSupport'):
                 #x direction unknown
@@ -609,7 +609,7 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c2']][0]]=x
                 temp=[x,points.getPart(connection['c2']),'x']
                 Force_Point_Assoc.append(temp) 
-                print(f)
+                #print(f)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
@@ -618,7 +618,7 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
                 Force_Point_Assoc.append(temp)
-                print(f) 
+                #print(f) 
                 f+=1
             #Add to list of points that have been checked
             CheckedPoints.append(connection['c2'])
@@ -672,7 +672,7 @@ def MatrixCreation(connections, points):
         #print(points.getPart(connection['c1']).type)
         #check so wont have to repeat
         if(connection['c1'] not in CheckedPoints2):
-            print('d_one', d,connection['c1'] )
+            #print('d_one', d,connection['c1'] )
             #For X Support
             if(points.getPart(connection['c1']).type=='XSupport'):
                 #y direction unknown
@@ -803,7 +803,7 @@ def MatrixCreation(connections, points):
         #For point 2__________________________________________________
         if(connection['c2'] not in CheckedPoints2):
             #print(d,connection['c2'] )
-            print('d-two',d, points.getPart(connection['c2']).type)
+            #print('d-two',d, points.getPart(connection['c2']).type)
             #for X support
             if(points.getPart(connection['c2']).type=='XSupport'):
                 #y direction unknown
@@ -813,7 +813,7 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
                 Deflection_Point_Assoc.append(temp) 
-                print(d)
+                #print(d)
                 d+=1
                 #m direction unknown
                 tempname='D'+str(d)
@@ -822,7 +822,7 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][2]]=x
                 temp=[x,points.getPart(connection['c2']),'m']
                 Deflection_Point_Assoc.append(temp) 
-                print(d)
+                #print(d)
                 d+=1
             #For Y Support
             if(points.getPart(connection['c2']).type=='YSupport'):
@@ -987,9 +987,9 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             TempZMoment+=force.magnitude()
         if(force.gettype()=='DForce'):
             if(force.direction=="Global-Y"):
-                print(force.x1)
-                print(force.x2)
-                print((((force.x2-force.x1)/2+force.x1)-startx))
+                #print(force.x1)
+                #print(force.x2)
+                #print((((force.x2-force.x1)/2+force.x1)-startx))
                 TempZMoment+=(((force.x2-force.x1)/2+force.x1)-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-Y"):
@@ -1063,7 +1063,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     #YMoment.append(TempYMoment)
     YMoment.append(SumX)
     
-    print(ZMoment)
+    #print(ZMoment)
     
      
     for joint in AllJoints:
@@ -1177,19 +1177,19 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     #put zmoment into matrix format and solve
     #mat1=Matrix(((0,15.0,10.0,700.0),(1,1,1,100),(0,10.0,5.0,200.0),(-5.0,0,0,0)))
     systemz = set(ZMoment)
-    print(systemz)    
-    print(unknowny)
+    #print(systemz)    
+    #print(unknowny)
     answery = solve(systemz, *unknowny)
     
     #put ymoment into matrix format and solve
     systemy = set(YMoment)
-    print(systemy)
-    print(unknownx)
+    #print(systemy)
+    #print(unknownx)
     answerx = solve(systemy, *unknownx)
     
     #return answer
-    print(answery)
-    print(answerx)
+    #print(answery)
+    #print(answerx)
 
     xcount=0
     ycount=0
@@ -1258,7 +1258,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 10, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 300, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2':30, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'name': u'S2', u'servy1': 25, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'YSupport'}, {u'name': u'S3',u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 30, u'servx1': 45, u'y1': 225, u'x1': 675, u'type': u'XSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100',u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 30, u'servx1': 45, u'magnitude': u'500', u'y1': 675, u'x1': 675, u'type': u'MForce'}]
     #Use the one below currently, 21x21
-    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
+    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
     #crazy mess
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 25, u'servx2': 35, u'x2': 525, u'servy2':20, u'y1': 375, u'x1': 375, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2': 25, u'y1': 375, u'x1': 525, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 45, u'servx2': 45, u'x2': 675, u'servy2': 10, u'y1': 300, u'x1': 675, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 45, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 525, u'x1': 675, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M5', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 35, u'servx2': 20, u'x2':300, u'servy2': 10, u'y1': 450, u'x1': 525, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M6', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 20, u'servx2': 10, u'x2': 150, u'servy2': 20, u'y1': 525, u'x1': 300, u'type': u'member'}, {u'name': u'P7', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150,u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 20, u'servx1': 35, u'y1': 375, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P9', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P10', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P11', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P12', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P13', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1':300, u'type': u'FixedJoint'}, {u'name': u'S14', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'XSupport'}, {u'name': u'S15', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'XSupport'}, {u'name': u'S16', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'YSupport'}, {u'name': u'S17', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'YSupport'}, {u'name': u'S18', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'PinSupport'}, {u'name': u'S19', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1': 300, u'type': u'PinSupport'}, {u'name': u'F20', u'servy1': 12, u'servx1': 25, u'magnitude': 1, u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F21', u'servy1': 13, u'servx1': 39, u'magnitude': 1, u'y1': 585, u'x1': 585, u'type': u'YForce'}]
     #three beam, tilted, with y and moment
@@ -1269,7 +1269,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 20, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'F2', u'servy1': 20, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}]
     
     for x in form:
-        print(x['type'])
+        #print(x['type'])
         if(x['type']=='member'):
             tempmember = Member(x['servx1'], x['servy1'], x['servx2'], x['servy2'], x['i'], x['e'], x['area'], x['name'])
             AllParts.append(tempmember)
@@ -1305,7 +1305,7 @@ def MainParse(form):
     allpartcount=0
     for Part in AllParts:
         if(Part.type!='Member' and Part.type!="DForce"):
-            print(Part.type)
+            #print(Part.type)
             onmember(AllParts, Part, allpartcount)
         allpartcount+=1
     
@@ -1356,8 +1356,8 @@ def MainParse(form):
     
     #print(KMatrix)
     #print pointrecord
-    print ForceVector
-    print DeflectionVector
+    #print ForceVector
+    #print DeflectionVector
     #print Force_Point_Assoc, Deflection_Point_Assoc
     #print variable
     
