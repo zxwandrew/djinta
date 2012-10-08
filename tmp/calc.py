@@ -481,6 +481,7 @@ def MatrixCreation(connections, points):
         #check so wont have to repeat
         if(connection['c1'] not in CheckedPoints):
             #For Fixed Support
+            print('one', f, points.getPart(connection['c1']).type)
             if(points.getPart(connection['c1']).type=='FixedSupport'):
                 #x direction unknown
                 tempname='F'+str(f)
@@ -522,7 +523,7 @@ def MatrixCreation(connections, points):
                 tempname='F'+str(f)
                 x=Symbol(tempname)
                 variable.append(x)
-                ForceVector[pointrecord[connection['c1']][0]]=x
+                ForceVector[pointrecord[connection['c1']][1]]=x
                 temp=[x,points.getPart(connection['c1']),'y']
                 Force_Point_Assoc.append(temp) 
                 f+=1
@@ -535,12 +536,14 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c1']][0]]=x
                 temp=[x,points.getPart(connection['c1']),'x']
                 Force_Point_Assoc.append(temp) 
+                print(f)
+                print(ForceVector)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
                 x=Symbol(tempname)
                 variable.append(x)
-                ForceVector[pointrecord[connection['c1']][0]]=x
+                ForceVector[pointrecord[connection['c1']][1]]=x
                 temp=[x,points.getPart(connection['c1']),'y']
                 Force_Point_Assoc.append(temp) 
                 f+=1
@@ -548,7 +551,9 @@ def MatrixCreation(connections, points):
             CheckedPoints.append(connection['c1'])
             
             #check so wont have to repeat
+        
         if(connection['c2'] not in CheckedPoints):
+            print('two',f, points.getPart(connection['c2']).type)
             #For Fixed Support
             if(points.getPart(connection['c2']).type=='FixedSupport'):
                 #x direction unknown
@@ -604,6 +609,7 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c2']][0]]=x
                 temp=[x,points.getPart(connection['c2']),'x']
                 Force_Point_Assoc.append(temp) 
+                print(f)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
@@ -611,7 +617,8 @@ def MatrixCreation(connections, points):
                 variable.append(x)
                 ForceVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
-                Force_Point_Assoc.append(temp) 
+                Force_Point_Assoc.append(temp)
+                print(f) 
                 f+=1
             #Add to list of points that have been checked
             CheckedPoints.append(connection['c2'])
@@ -662,10 +669,10 @@ def MatrixCreation(connections, points):
     #generate deflection vector
     for connection in connections.connections:
         
-        print(points.getPart(connection['c1']).type)
+        #print(points.getPart(connection['c1']).type)
         #check so wont have to repeat
         if(connection['c1'] not in CheckedPoints2):
-            print(d,connection['c1'] )
+            print('d_one', d,connection['c1'] )
             #For X Support
             if(points.getPart(connection['c1']).type=='XSupport'):
                 #y direction unknown
@@ -685,7 +692,7 @@ def MatrixCreation(connections, points):
                 Deflection_Point_Assoc.append(temp) 
                 d+=1
             #For Y Support
-            if(points.getPart(connection['c1']).type=='XSupport'):
+            if(points.getPart(connection['c1']).type=='YSupport'):
                 #X direction unknown
                 tempname='D'+str(d)
                 x=Symbol(tempname)
@@ -795,8 +802,8 @@ def MatrixCreation(connections, points):
             
         #For point 2__________________________________________________
         if(connection['c2'] not in CheckedPoints2):
-            print(d,connection['c2'] )
-            print(points.getPart(connection['c2']).type)
+            #print(d,connection['c2'] )
+            print('d-two',d, points.getPart(connection['c2']).type)
             #for X support
             if(points.getPart(connection['c2']).type=='XSupport'):
                 #y direction unknown
@@ -806,6 +813,7 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
                 Deflection_Point_Assoc.append(temp) 
+                print(d)
                 d+=1
                 #m direction unknown
                 tempname='D'+str(d)
@@ -814,9 +822,10 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][2]]=x
                 temp=[x,points.getPart(connection['c2']),'m']
                 Deflection_Point_Assoc.append(temp) 
+                print(d)
                 d+=1
             #For Y Support
-            if(points.getPart(connection['c2']).type=='XSupport'):
+            if(points.getPart(connection['c2']).type=='YSupport'):
                 #X direction unknown
                 tempname='D'+str(d)
                 x=Symbol(tempname)
@@ -878,7 +887,6 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][0]]=x
                 temp=[x,points.getPart(connection['c2']),'x']
                 Deflection_Point_Assoc.append(temp) 
-                print(x)
                 d+=1
                 #y direction unknown
                 tempname='D'+str(d)
@@ -887,7 +895,6 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
                 Deflection_Point_Assoc.append(temp)
-                print(x)
                 d+=1
                 #m direction unknown
                 tempname='D'+str(d)
@@ -896,7 +903,6 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][2]]=x
                 temp=[x,points.getPart(connection['c2']),'m']
                 Deflection_Point_Assoc.append(temp) 
-                print(x)
                 d+=1
             #For Fixed Joint
             if(points.getPart(connection['c2']).type=='FixedJoint'):
@@ -924,7 +930,9 @@ def MatrixCreation(connections, points):
                 temp=[x,points.getPart(connection['c2']),'m']
                 Deflection_Point_Assoc.append(temp) 
                 d+=1
+                
             CheckedPoints2.append(connection['c2'])
+            
                 
             
 
@@ -1386,6 +1394,7 @@ def MainParse(form):
     answer=solve(KMatrix*DeflectionVector-ForceVector, variable)
     #print(answer)
     
+    
     for assoc in Force_Point_Assoc:
         if(assoc[2]=='x'):
             assoc[1].fx1=float(answer[assoc[0]])
@@ -1418,6 +1427,7 @@ def MainParse(form):
             if(assoc[2]=='m'):
                 assoc[1].dm1=float(answer[assoc[0]])
     
+    
     answer=42
     #print(answer)
     
@@ -1431,14 +1441,17 @@ def MainParse(form):
     
     print(simplejson.dumps(AllJson))
     
+    
 
-    '''
+
     #print points
+    '''
     for x in points.points:
            print(x[2].name)
     print(connections.connections)
-    return answer
     '''
+    return answer
+
 
 output = MainParse(sys.argv[1])
     
