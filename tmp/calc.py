@@ -1437,6 +1437,7 @@ def MainParse(form):
         temp=part.Get_Details()
         AllJson.update({part.name:temp})
     
+    AllJson.update({'Calculated': 'True'})
     #print(AllJson)
     
     print(simplejson.dumps(AllJson))
