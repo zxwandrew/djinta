@@ -1440,7 +1440,7 @@ def MainParse(form):
     AllJson.update({'Calculated': 'True'})
     #print(AllJson)
     
-    FinalJson=simplejson.dumps(AllJson))
+
     
     
 
@@ -1451,4 +1451,4 @@ def MainParse(form):
            print(x[2].name)
     print(connections.connections)
     '''
-    return FinalJson
+    return AlllJson

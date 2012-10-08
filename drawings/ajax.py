@@ -26,5 +26,5 @@ def send_form(request, form):
     #d2 = Drawing(drawingpart=DP, create_date=datetime.now())
     #d2.save()
 
-    #return simplejson.dumps({'message':'Answer is always: %s!' % temp})
-    return temp
+    return simplejson.dumps(AllJson))
+    #return temp
