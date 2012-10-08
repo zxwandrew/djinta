@@ -26,6 +26,4 @@ def send_form(request, form):
     #d2 = Drawing(drawingpart=DP, create_date=datetime.now())
     #d2.save()
 
-    return simplejson.dumps({'message':AllJson})
-        #AllJson
-    return temp
+    return simplejson.dumps({'message':temp})
