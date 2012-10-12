@@ -48,12 +48,9 @@ class Points:
     def __init__(self):
         self.points=[]
     def add(self, x1t, y1t, partt):
-        #check if point already exists (probably need to be optimized), if exist return position
+        #check if point already exists (probably need to be optimized), if exist return the point
         matchcount=0
         for pos1 in range(len(self.points)):
-            #print('break2')
-            #print(partt.type)
-            #print(self.points[pos1][2].type)
             if(self.points[pos1][0]==x1t and self.points[pos1][1]==y1t and self.points[pos1][2].type=='Member' and partt.type=='Member'):
                 matchcount+=1
                 return pos1
@@ -61,11 +58,12 @@ class Points:
                 matchcount+=1
                 return pos1
         
-        #add to points
+        #if the point pass the check above, add to points
         if(matchcount==0):
             temp=[x1t, y1t, partt]
             self.points.append(temp) 
             return len(self.points)-1
+        
     def getX(self,x):
         return self.points[x][0]
     def getY(self,x):
@@ -78,7 +76,7 @@ class Connections:
     def __init__(self):
         self.connections=[]
     def add(self, c1t, c2t, membert, anglet, lengtht, forcelistt,points):
-    #check if connection already exists (probably need to be optimized)
+        #check if connection already exists (probably need to be optimized)
         matchcount=0
         for connection in self.connections:
             if((connection['c1']==c1t and connection['c2']==c2t) or (connection['c1']==c2t and connection['c2']==c1t)):
@@ -93,13 +91,14 @@ class Connections:
 
 class Member:
     
+    #creat the member
     def __init__(self, x1t, y1t, x2t, y2t, it, et, areat,namet):
+        #determine the point that comes first relative to coord system
         if( (float(min(x1t,x2t))==x1t) or (x1t==x2t and y1t==float(max(y1t,y2t)))):
             self.x1=x1t
             self.y1=y1t
             self.x2=x2t
             self.y2=y2t
-            
         else:
             self.x1=x2t
             self.y1=y2t
@@ -240,6 +239,7 @@ class force:
         self.name=namet
         self.category='Force'
         self.onmember=[]
+        
     def getx1(self):
         return self.x1
     def gettype(self):
@@ -263,6 +263,7 @@ class force:
         return temp
 
 class dforce:
+    
     def __init__(self, x1t, y1t, x2t,y2t, typet, f1t, f2t, directiont, onmembert, r1t, r2t, slopet, namet):
         self.x1=float(x1t)
         self.y1=float(y1t)
@@ -307,7 +308,7 @@ def onmember(AllParts, Part, partcount):
     allcount=0
     for Member in AllParts:
         if(Member.type=='Member'):
-            #algo for testing if on member
+            #algo for testing if on member using cross product
             if(Part.x1>=Member.x1 and Part.x1<=Member.x2):
                 v1=[Member.x2-Member.x1, Member.y2-Member.y1]
                 v2=[Member.x2-Part.x1, Member.y2-Part.y1]
@@ -323,15 +324,12 @@ def PointsFromMember(Member, AllParts):
     templist=[]
     temp1=[Member.x1, Member.y1, Member]
     temp2=[Member.x2, Member.y2, Member]
-    
-    
-    #print(Member.x1, Member.y1, ' ', Member.x2, Member.y2)
+
     
     #very inefficient :/
     #check for conflicts(position and type){BUG}
     for connectpart in Member.connectpart:
         conflict=bool(False)
-        
         
         #for temps in templist:
         #if it is a support type, check if it is at end of member, if not just add
@@ -351,16 +349,13 @@ def PointsFromMember(Member, AllParts):
             elif(AllParts[connectpart].x1==Member.x2 and AllParts[connectpart].y1==Member.y2):
                 temp2[2]=AllParts[connectpart]
                 conflict=bool(True)
-            #else:
-                #confilct=bool(True)
-                
+
         #if no conflict add to templist
         if(conflict==False):
             temp=[AllParts[connectpart].x1, AllParts[connectpart].y1, AllParts[connectpart]]
             templist.append(temp)
     
-    
-    #templist.append(temp2)#add endpoint 2
+
     #sort (insertion sort?) SORT IS NOT COMPLETELY ACCURATE!! (currently sort by x ASC then y DESC, but need to sort relative to the member){BUG}
     sortlist=[]
     sortlist.append(temp1)
@@ -373,8 +368,7 @@ def PointsFromMember(Member, AllParts):
         for pos2 in range(len(sortlist)):
             if(sortlist[pos2][0]>templist[pos1][0] or (sortlist[pos2][0]==templist[pos1][0] and sortlist[pos2][1]<templist[pos1][1])):
                 sortlist.insert(pos2, templist[pos1])
-    #add endpoint 1 to front of list
-    #sortlist.insert[0,temp1] 
+
     sortlist.append(temp2)
     return sortlist
 
@@ -469,7 +463,9 @@ def MatrixCreation(connections, points):
     
     
     ForceVector=[]
+    #list of points that has been checked
     CheckedPoints=[]
+    #keep track of unknowns and the point it is related to
     Force_Point_Assoc=[]
     x=0
     #create empty forcevector
@@ -481,6 +477,7 @@ def MatrixCreation(connections, points):
     #generate force matrix
     for connection in connections.connections:
         #check so wont have to repeat
+        #Do connection 1
         if(connection['c1'] not in CheckedPoints):
             #For Fixed Support
             #print('one', f, points.getPart(connection['c1']).type)
@@ -538,8 +535,6 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c1']][0]]=x
                 temp=[x,points.getPart(connection['c1']),'x']
                 Force_Point_Assoc.append(temp) 
-                #print(f)
-                #print(ForceVector)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
@@ -953,9 +948,8 @@ def MatrixCreation(connections, points):
 
     return KMatrix, pointrecord , ForceVector, DeflectionVector, variable, Force_Point_Assoc, Deflection_Point_Assoc
 
-def ForceVectorCreation():
-    return 0
 
+# This Function is ditched in favor of MatrixCreation function==============================================
 def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     #KIND OF DONE, BUT A LOT OF BUGS (DITCHING THIS EFFORT FOR MSA... FOR NOW)
     startx=AllSupports[0].x1
@@ -1185,13 +1179,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     
     #put ymoment into matrix format and solve
     systemy = set(YMoment)
-    #print(systemy)
-    #print(unknownx)
     answerx = solve(systemy, *unknownx)
-    
-    #return answer
-    #print(answery)
-    #print(answerx)
 
     xcount=0
     ycount=0
@@ -1320,7 +1308,7 @@ def MainParse(form):
             print(Part.name, Part.onmember)
     '''
     
-    #start point/ connection making
+    #start point/ connection association
     for member in AllMembers:
         sortlist=PointsFromMember(member, AllParts)
         connectionlist=[]
@@ -1430,7 +1418,7 @@ def MainParse(form):
                 assoc[1].dm1=float(answer[assoc[0]])
     
     
-    answer=42
+    #answer=42
     #print(answer)
     
     AllJson={}
@@ -1441,11 +1429,6 @@ def MainParse(form):
     
     AllJson.update({'Calculated': 'True'})
     #print(AllJson)
-    
-
-    
-    
-
 
     #print points
     '''
