@@ -3,7 +3,6 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-
 		<!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
 		Remove this if you use the .htaccess -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
@@ -12,16 +11,8 @@
 
 		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
 
-		<!-- Replace the following with root of your domain and delete these references
-		<link rel="stylesheet" type="text/css" href="css/style.css" />
-		<link rel="shortcut icon" href="favicon.ico" />
-		<script type="text/javascript" src="file/jquery-1.7.2.min.js"></script>
-		<script type="text/javascript" src="file/modernizr-2.5.3.js"></script>
-		<script src="file/iphone-style-checkboxes.js" type="text/javascript" charset="utf-8"></script>
-		<script type="text/javascript" src="file/jquery.json-2.3.min.js"></script>
-		<script type="text/javascript" src="file/jquery.event.drag-2.2.js"></script>
-		-->
 
+		<!-- TOGGLE BETWEEN THIS!!!!!!!!!!!(1)-->
 		<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
 		<link rel="shortcut icon" href="{{STATIC_URL}}favicon.ico" />
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery-1.7.2.min.js"></script>
@@ -30,9 +21,31 @@
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.json-2.3.min.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.event.drag-2.2.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/display_results.js"></script>
-		
 		{% dajaxice_js_import %}
+		<!---->
+		
+		
 		<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>-->
+		<!-- Replace the following with root of your domain and delete these references
+		<link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
+		<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+		<link rel="shortcut icon" href="static/favicon.ico" />
+		-->
+
+		<!-- TOGGLE BETWEEN THIS 1!!!!!!!!!! (2)
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
+		<link rel="shortcut icon" href="favicon.ico" />
+		<script type="text/javascript" src="file/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="file/modernizr-2.5.3.js"></script>
+		<script src="file/iphone-style-checkboxes.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript" src="file/jquery.json-2.3.min.js"></script>
+		<script type="text/javascript" src="file/jquery.event.drag-2.2.js"></script>
+		<script type="text/javascript" src="file/display_results.js"></script>
+		-->
+		
+		<!--something else
+		<script type="text/javascript" src="file/jquery.event.drag.live-2.2.js"></script>
+		-->
 
 		<!--resizing mostly-->
 		<script type="text/javascript">
@@ -2002,10 +2015,6 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 				};
 
 			}
-		</script>
-
-		<script type="text/javascript">
-			
 		</script>
 
 	</body>

@@ -142,6 +142,7 @@ class Member:
         temp.update({'length':self.length})
         temp.update({'name':self.name})
         temp.update({'type':self.type})
+        
         temp.update({'connectpart':self.connectpart})
         
 
@@ -216,9 +217,9 @@ class support:
         temp.update({'dx1':self.dx1})
         temp.update({'dy1':self.dy1})
         temp.update({'dm1':self.dm1})
-        temp.update({'fx1':self.dx1})
-        temp.update({'fy1':self.dy1})
-        temp.update({'fm1':self.dm1})
+        temp.update({'fx1':self.fx1})
+        temp.update({'fy1':self.fy1})
+        temp.update({'fm1':self.fm1})
 
         temp.update({'name':self.name})
         temp.update({'type':self.type})
@@ -228,7 +229,6 @@ class support:
         
         
 class force:
-    
     def __init__(self, x1t, y1t, typet, magnitudet,namet):
         self.onmember=[]
         self.x1=float(x1t)
@@ -951,7 +951,16 @@ def MatrixCreation(connections, points):
 
     return KMatrix, pointrecord , ForceVector, DeflectionVector, variable, Force_Point_Assoc, Deflection_Point_Assoc
 
-def ForceVectorCreation():
+def ForceDiagram():
+    return 0
+
+def ShearDiagram():
+    return 0
+
+def MomentDiagram():
+    return 0
+
+def DeflectionDiagram():
     return 0
 
 def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
@@ -1258,7 +1267,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 10, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 300, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2':30, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'name': u'S2', u'servy1': 25, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'YSupport'}, {u'name': u'S3',u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 30, u'servx1': 45, u'y1': 225, u'x1': 675, u'type': u'XSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100',u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 30, u'servx1': 45, u'magnitude': u'500', u'y1': 675, u'x1': 675, u'type': u'MForce'}]
     #Use the one below currently, 21x21
-    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
+    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
     #crazy mess
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 25, u'servx2': 35, u'x2': 525, u'servy2':20, u'y1': 375, u'x1': 375, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2': 25, u'y1': 375, u'x1': 525, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 45, u'servx2': 45, u'x2': 675, u'servy2': 10, u'y1': 300, u'x1': 675, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 45, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 525, u'x1': 675, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M5', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 35, u'servx2': 20, u'x2':300, u'servy2': 10, u'y1': 450, u'x1': 525, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M6', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 20, u'servx2': 10, u'x2': 150, u'servy2': 20, u'y1': 525, u'x1': 300, u'type': u'member'}, {u'name': u'P7', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150,u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 20, u'servx1': 35, u'y1': 375, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P9', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P10', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P11', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P12', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P13', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1':300, u'type': u'FixedJoint'}, {u'name': u'S14', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'XSupport'}, {u'name': u'S15', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'XSupport'}, {u'name': u'S16', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'YSupport'}, {u'name': u'S17', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'YSupport'}, {u'name': u'S18', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'PinSupport'}, {u'name': u'S19', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1': 300, u'type': u'PinSupport'}, {u'name': u'F20', u'servy1': 12, u'servx1': 25, u'magnitude': 1, u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F21', u'servy1': 13, u'servx1': 39, u'magnitude': 1, u'y1': 585, u'x1': 585, u'type': u'YForce'}]
     #three beam, tilted, with y and moment
@@ -1267,6 +1276,9 @@ def MainParse(form):
     #form=[{u'y2': 450, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 15, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 20, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 450, u'x1': 300, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 30, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 450, u'x1': 450, u'type': u'member'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}, {u'name': u'S4', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'YSupport'}, {u'name': u'F5', u'servy1': 15, u'servx1': 20, u'magnitude': u'100', u'y1': 300, u'x1': 300, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 450, u'x1': 450, u'type': u'MForce'}]
     #simplejson
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 20, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'F2', u'servy1': 20, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}]
+    #cantilever
+    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 10, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 150, u'x1': 150, u'type': u'member'}, {u'name': u'S1', u'servy1': 15, u'servx1': 10, u'y1': 150, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 420, u'x1': 420, u'type': u'YForce'}]
+    
     
     for x in form:
         print(x['type'])
@@ -1392,12 +1404,15 @@ def MainParse(form):
     
     #print(KMatrix*DeflectionVector-ForceVector)
     answer=solve(KMatrix*DeflectionVector-ForceVector, variable)
-    #print(answer)
+    print(answer)
     
+    
+    print(Force_Point_Assoc)
     
     for assoc in Force_Point_Assoc:
         if(assoc[2]=='x'):
             assoc[1].fx1=float(answer[assoc[0]])
+            print("here")
             #print(assoc[1].fx)
             #print(answer[assoc[0]])
         if(assoc[2]=='y'):
