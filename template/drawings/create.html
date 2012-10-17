@@ -29,6 +29,8 @@
 		<script type="text/javascript" src="{{STATIC_URL}}file/iphone-style-checkboxes.js" charset="utf-8"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.json-2.3.min.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.event.drag-2.2.js"></script>
+		<script type="text/javascript" src="{{STATIC_URL}}file/display_results.js"></script>
+		
 		{% dajaxice_js_import %}
 		<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>-->
 
@@ -610,6 +612,10 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 				//For Drawing-Interface
 				DrawingInterfaceHeight = $(window).height() - 62;
 				$(".Drawing-Interface").css("height", DrawingInterfaceHeight);
+				
+				//For the results, initially hidden
+				$(".Result-Background").css("height", DrawingInterfaceHeight);
+				$(".Result-Pane").css("height", DrawingInterfaceHeight);
 
 				//For Viewport
 				TrueHeight = $(window).height();
@@ -724,6 +730,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 				</li>
 				<li>
 					<a href="#" onclick="send_form()" >Calculate</a>
+				</li>
+				<li>
+					<a href="javascript:ShowResult()">Results</a>
 				</li>
 			</ul>
 
@@ -1998,7 +2007,8 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 
 			//some temp code for ajax
 			function my_js_callback(data) {
-				alert(data.message);
+				//alert(data.message);
+				DisplayDrawingResultPage(data)
 			}
 
 			function send_form() {
