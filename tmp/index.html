@@ -27,6 +27,7 @@
 		<!--
 		<script type="text/javascript" src="file/jquery.event.drag.live-2.2.js"></script>-->
 		<script type="text/javascript" src="file/jquery.event.drag-2.2.js"></script>
+		<script type="text/javascript" src="file/display_results.js"></script>
 
 		<!--resizing mostly-->
 		<script type="text/javascript">
@@ -607,6 +608,10 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 				//For Drawing-Interface
 				DrawingInterfaceHeight = $(window).height() - 62;
 				$(".Drawing-Interface").css("height", DrawingInterfaceHeight);
+				
+				//For the results, initially hidden
+				$(".Result-Background").css("height", DrawingInterfaceHeight);
+				$(".Result-Pane").css("height", DrawingInterfaceHeight);
 
 				//For Viewport
 				TrueHeight = $(window).height();
@@ -722,6 +727,9 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 				<li>
 					<a href="#">Calculate</a>
 				</li>
+				<li>
+					<a href="javascript:ShowResult()">Results</a>
+				</li>
 			</ul>
 
 		</nav>
@@ -750,6 +758,14 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 		</script>
 
 		<div class="Drawing-Interface">
+			<div class="Result-Background">
+				<div class ="Result-Pane">
+					<a href='javascript: HideResult()'>Back To Drawing</a>
+					<p>No Data Yet!</p>
+					<br/>
+				</div>
+			</div>
+			
 			<div class="Tool-Bar">
 				<div class="Tool-Bar-Slider Scrollable">
 
@@ -1981,15 +1997,6 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 					AbsSnapY : AbsSnapY
 				};
 
-			}
-		</script>
-
-		<script type="text/javascript">
-			function SaveDrawing() {
-				window.AllPartsJSON = $.toJSON(AllParts);
-				//var temp = $.evalJSON( AllPartsJSON )
-				alert(AllPartsJSON);
-				localStorage["drawing"] = AllPartsJSON;
 			}
 		</script>
 
