@@ -763,6 +763,13 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 		</script>
 
 		<div class="Drawing-Interface">
+			<div class="Result-Background">
+				<div class ="Result-Pane">
+					<a href='javascript: HideResult()'>Back To Drawing</a>
+					<p>No Data Yet!</p>
+					<br/>
+				</div>
+			</div>
 			<div class="Tool-Bar">
 				<div class="Tool-Bar-Slider Scrollable">
 
@@ -1998,27 +2005,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 		</script>
 
 		<script type="text/javascript">
-			function SaveDrawing() {
-				window.AllPartsJSON = $.toJSON(AllParts);
-				//alert(AllPartsJSON);
-				alert("Saved!")
-				localStorage["drawing"] = AllPartsJSON;
-			}
-
-			//some temp code for ajax
-			function my_js_callback(data) {
-				//alert(data.message);
-				DisplayDrawingResultPage(data)
-			}
-
-			function send_form() {
-				SaveDrawing();
-				//var data = JSON.stringify($('#my_form').serializeObject());
-				alert(AllPartsJSON);
-				Dajaxice.drawings.send_form(my_js_callback, {
-					'form' : AllPartsJSON
-				});
-			}
+			
 		</script>
 
 	</body>
