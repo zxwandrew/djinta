@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^drawings/', include('drawings.urls')),
     (r'^%s/' % settings.DAJAXICE_MEDIA_PREFIX, include('dajaxice.urls')),
     (r'^charts/simple.png$', 'drawings.calc.simple'),
+    url(r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'tempfront/index.html'}),
     
     #(r'^$', 'django.views.generic.simple.direct_to_template', {'template': '/template/tempfront'}),
 
