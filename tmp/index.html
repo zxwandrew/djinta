@@ -398,7 +398,7 @@
 
 					//check if one or all and create message
 					if(matchingselected.length == 1) {
-						var displaymessage = '<h4>Properties</h4><p>Editing: ' + selected[0] + '</p><br/> <form> i: <input class="Property-Textbox" type="text" name="i" value="' + i + '"/>';
+						var displaymessage = '<symbols>Properties</h4><p>Editing: ' + selected[0] + '</p><br/> <form> i: <input class="Property-Textbox" type="text" name="i" value="' + i + '"/>';
 					} else {
 						var displaymessage = '<h4>Properties</h4><p>Editing: ';
 						for( k = 0; k < matchingselected.length; k++) {
@@ -785,12 +785,11 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 		<div class="Drawing-Interface">
 			<div class="Result-Background">
 				
-				<div class ="Result-Pane">	
+				<div class ="Result-Pane">					
+					<div class="Return-To-Drawing">
+						<a href='javascript: HideResult()'>Back To Drawing</a>
+					</div>
 					
-					<div id="chartdiv" style="height:300px;width:300px; "></div>
-					
-					
-					<a href='javascript: HideResult()'>Back To Drawing</a>
 					<p>No Data Yet!</p>
 					<br/>
 				</div>
@@ -801,7 +800,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 				<div class="Tool-Bar-Slider Scrollable">
 
 					<div class="Panel" id="SnapSwitch">
-						<h3>Snapping</h3>
+						<h4>Snapping</h4>
 						<div class="PanelContent" id="SnapSwitchContent">
 							<br/>
 							<input type="checkbox" id="Snap-on-off" value="false"/>
@@ -810,7 +809,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 					</div>
 
 					<div class="Panel" id="StrucutralPanel">
-						<h3>Structural Panel</h3>
+						<h4>Structural Panel</h4>
 						<div class="PanelContent" id="StrucutralPanelContent">
 							<!--Truss Block-->
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateMember();" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable MemberBlock" name="MemberBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>
@@ -826,7 +825,7 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 					</div>
 
 					<div class="Panel" id="ForcelPanel">
-						<h3>Force Panel</h3>
+						<h4>Force Panel</h4>
 						<div class="PanelContent" id="ForcePanelContent">
 							<!--Truss Block-->
 							<a href="javascript:CreateMember('Cancel'), CreatePoint('Cancel'), CreateForce('Cancel'), CreateForce('YForce');" class="Tool-Box-Block"> <canvas class="Tool-Box-Block-Canvas left ui-draggable YForce-Block" name="YForceBlock" width="42" height="42" style="position: relative; left: 0px; top: 0px;"></canvas> </a>

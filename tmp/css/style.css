@@ -41,20 +41,32 @@ h1{
 }
 h2{
     font-family: 'FundamentalBrigadeRegular';
-     font-size: 120px;
-     margin-top: 10px;
-     color: #dbdee0;
+    font-size: 120px;
+    margin-top: 10px;
+    color: #dbdee0;
      
-     text-shadow: 1px 8px 8px #000000;
+    text-shadow: 1px 8px 8px #000000;
     filter: dropshadow(color=#000000, offx=1, offy=3);
 }
-h4{
+h3{
     font-family: 'FundamentalBrigadeRegular';
     font-size: 40px;
     margin: 0;
     color: #dbdee0;
     text-shadow: 1px 6px 6px #000000;
     filter: dropshadow(color=#000000, offx=1, offy=3);
+}
+h4{
+	font-family: 'FundamentalBrigadeRegular';
+    font-size: 18px;
+    margin: 0;
+    color: #333;
+}
+h5{
+	font-family: 'FundamentalBrigadeRegular';
+    font-size: 14px;
+    margin: 0;
+    font-weight:200;
 }
 
 p{
@@ -156,10 +168,26 @@ label.iPhoneCheckLabelOff span,label.iOSCheckLabelOff span{padding-right:8px}
 	overflow:scroll;
 	color: #333;
 	margin-bottom: 2%;
+	padding: 0px 10px 5px 10px;
 }
 
+.Return-To-Drawing{
+	position:fixed;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	background-color: #eee;
+	width: 490px;	
+	-webkit-box-shadow:  2px 2px 2px 2px #999; 
+    box-shadow:  2px 2px 2px 2px #999;
+    -webkit-border-radius: 5px;
+	border-radius: 5px; 
+	z-index: 99;
+	
+}
 .Result-Pane a{
 	font-size: 1.5em;
+	text-decoration: none;
+	color: #c00000;
 }
 .Result-Pane p{
 	font-size: 1.5em;
@@ -186,6 +214,7 @@ label.iPhoneCheckLabelOff span,label.iOSCheckLabelOff span{padding-right:8px}
     right: 0;
     top: 0;
     width: auto;
+    margin-left: 2px;
     
 }
 
