@@ -1,4 +1,4 @@
-import randomimport random
+import random
 import django
 import datetime
 import sys
@@ -23,6 +23,7 @@ from decimal import Decimal
 from operator import itemgetter, attrgetter
 
 # file charts.py, a stupid little test to see if plot was working
+'''
 def simple(request):
     fig = Figure()
     ax = fig.add_subplot(111)
@@ -41,6 +42,7 @@ def simple(request):
     response = django.http.HttpResponse(content_type='image/png')
     canvas.print_png(response)
     return response
+'''
 
 class Points:
     def __init__(self):
@@ -1056,11 +1058,11 @@ def ShearDiagram(AllParts):
                     if(AllParts[member.connectpart[pos1]].category=="Force"):
                         if(AllParts[member.connectpart[pos1]].type=="XForce"):
                             tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
-                            temp=[distance, temforce]
+                            temp=[distance, tempforce]
                             ShearDiagram.append(temp)                            
                         if(AllParts[member.connectpart[pos1]].type=="YForce"):
                             tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
-                            temp=[distance, temforce]
+                            temp=[distance, tempforce]
                             ShearDiagram.append(temp)
                     if(AllParts[member.connectpart[pos1]].category=="Support"):
                         tempforce1=ReactionGlobalToLocal(member, 'X', AllParts[member.connectpart[pos1]].fx1, "Shear")
@@ -1153,11 +1155,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                 TempZMoment+=(((force.x2-force.x1)/2+force.x1)-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-Y"):
-                angle = math.atan(slope)
-                f1x = f1*math.sin(angle)
-                f1y = f1*math.cos(angle)
-                f2x = f2*math.sin(angle)
-                f2y = f2*math.cos(angle)
+                angle = math.atan(force.slope)
+                f1x = force.f1*math.sin(angle)
+                f1y = force.f1*math.cos(angle)
+                f2x = force.f2*math.sin(angle)
+                f2y = force.f2*math.cos(angle)
                 
                 TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                 TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1169,11 +1171,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                 TempZMoment+=((force.y2-force.y1)/2-starty)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumX+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-X"):
-                angle = math.atan(slope)
-                f1x = f1*math.sin(angle)
-                f1y = f1*math.cos(angle)
-                f2x = f2*math.sin(angle)
-                f2y = f2*math.cos(angle)
+                angle = math.atan(force.slope)
+                f1x = force.f1*math.sin(angle)
+                f1y = force.f1*math.cos(angle)
+                f2x = force.f2*math.sin(angle)
+                f2y = force.f2*math.cos(angle)
                 
                 TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                 TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1264,11 +1266,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     TempZMoment+=((force.x2-force.x1)/2-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                     SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
                 elif(force.direction=="Local-Y"):
-                    angle = math.atan(slope)
-                    f1x = f1*math.sin(angle)
-                    f1y = f1*math.cos(angle)
-                    f2x = f2*math.sin(angle)
-                    f2y = f2*math.cos(angle)
+                    angle = math.atan(force.slope)
+                    f1x = force.f1*math.sin(angle)
+                    f1y = force.f1*math.cos(angle)
+                    f2x = force.f2*math.sin(angle)
+                    f2y = force.f2*math.cos(angle)
                     
                     TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                     TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1280,11 +1282,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     TempZMoment+=((force.y2-force.y1)/2-starty)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                     SumX+=(force.f1+force.f2)*(force.r2-force.r1)/2
                 elif(force.direction=="Local-X"):
-                    angle = math.atan(slope)
-                    f1x = f1*math.sin(angle)
-                    f1y = f1*math.cos(angle)
-                    f2x = f2*math.sin(angle)
-                    f2y = f2*math.cos(angle)
+                    angle = math.atan(force.slope)
+                    f1x = force.f1*math.sin(angle)
+                    f1y = force.f1*math.cos(angle)
+                    f2x = force.f2*math.sin(angle)
+                    f2y = force.f2*math.cos(angle)
                     
                     TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                     TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1418,7 +1420,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 10, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 300, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2':30, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'name': u'S2', u'servy1': 25, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'YSupport'}, {u'name': u'S3',u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 30, u'servx1': 45, u'y1': 225, u'x1': 675, u'type': u'XSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100',u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 30, u'servx1': 45, u'magnitude': u'500', u'y1': 675, u'x1': 675, u'type': u'MForce'}]
     #Use the one below currently, 21x21
-    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
+    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
     #crazy mess
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 25, u'servx2': 35, u'x2': 525, u'servy2':20, u'y1': 375, u'x1': 375, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2': 25, u'y1': 375, u'x1': 525, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 45, u'servx2': 45, u'x2': 675, u'servy2': 10, u'y1': 300, u'x1': 675, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 45, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 525, u'x1': 675, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M5', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 35, u'servx2': 20, u'x2':300, u'servy2': 10, u'y1': 450, u'x1': 525, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M6', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 20, u'servx2': 10, u'x2': 150, u'servy2': 20, u'y1': 525, u'x1': 300, u'type': u'member'}, {u'name': u'P7', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150,u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 20, u'servx1': 35, u'y1': 375, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P9', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P10', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P11', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P12', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P13', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1':300, u'type': u'FixedJoint'}, {u'name': u'S14', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'XSupport'}, {u'name': u'S15', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'XSupport'}, {u'name': u'S16', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'YSupport'}, {u'name': u'S17', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'YSupport'}, {u'name': u'S18', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'PinSupport'}, {u'name': u'S19', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1': 300, u'type': u'PinSupport'}, {u'name': u'F20', u'servy1': 12, u'servx1': 25, u'magnitude': 1, u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F21', u'servy1': 13, u'servx1': 39, u'magnitude': 1, u'y1': 585, u'x1': 585, u'type': u'YForce'}]
     #three beam, tilted, with y and moment
