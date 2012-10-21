@@ -7,6 +7,13 @@ from django.core.context_processors import csrf
 from datetime import date, datetime
 #from django.http import Http404
         
+def tempcreate(request):
+    print("ayo")
+    d = Drawing(drawingpart=request, create_date=datetime.now())
+    print("hihi")
+    d.save()
+    return "good"
+
 def index(request):
     latest_drawing_list = Drawing.objects.all().order_by('-create_date')[:5]
     return render_to_response(

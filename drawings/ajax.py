@@ -9,6 +9,7 @@ from django.core.context_processors import csrf
 from datetime import date, datetime
 from django.utils import simplejson
 from drawings.calc import *
+from drawings.views import *
 
 
 
@@ -26,3 +27,9 @@ def send_form(request, form):
     #d2.save()
 
     return simplejson.dumps({'message':temp})
+
+@dajaxice_register
+def save_drawing(request, form):
+    DP = simplejson.loads(form)
+    tempcreate(DP)
+    return simplejson.dumps({'message':'Saved!'})

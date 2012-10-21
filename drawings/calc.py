@@ -998,7 +998,7 @@ def ReactionGlobalToLocal(member, direction, magnitude, AorS):
             axial=float(magnitude*(cos(angle)))
             return axial
         else:
-            shear=float(magnitude*(sin(angle)))
+            shear=float(magnitude*(cos(angle)))
             return shear
     
     if(direction=="X"):
@@ -1101,8 +1101,13 @@ def ShearDiagram(AllParts):
                         ShearDiagram.append(temp)
                             
                 #print(ShearDiagram)
-                member.ShearDiagram=ShearDiagram
                 pos1+=1
+            prevforce=ShearDiagram[len(ShearDiagram)-1][1]
+            tempprev=[member.length, prevforce]
+            templast=[member.length, 0]
+            ShearDiagram.append(tempprev)
+            ShearDiagram.append(templast)
+            member.ShearDiagram=ShearDiagram
                     
     
     return 0

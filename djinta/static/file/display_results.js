@@ -1,8 +1,12 @@
 function SaveDrawing() {	
 				window.AllPartsJSON = $.toJSON(AllParts);
-				//alert(AllPartsJSON);
+				alert(AllPartsJSON);
 				//alert("Saved!")
 				localStorage["drawing"] = AllPartsJSON;
+				
+				Dajaxice.drawings.save_drawing(drawingsaved, {
+					'form' : AllPartsJSON
+				});
 				
 				
 				//answer={"message": {"Calculated": "True", "S8": {"name": "S8", "servy1": 20.0, "servx1": 15.0, "fx1": 0.0, "dy1": 0, "dx1": 0, "fm1": 0.0, "dm1": 0, "fy1": 0.0, "onmember": [3, 4], "type": "FixedSupport"}, "P6": {"dm1": 0.0, "name": "P6", "servy1": 35.0, "servx1": 50.0, "type": "FixedJoint", "dy1": 0.0, "dx1": 0.0, "onmember": [1, 2]}, "P5": {"dm1": 0.0, "name": "P5", "servy1": 35.0, "servx1": 35.0, "type": "Hinge", "dy1": 0.0, "dx1": 0.0, "onmember": [0, 1]}, "F9": {"category": "Force", "magnitude": 900.0, "name": "F9", "servy1": 30.0, "servx1": 25.0, "type": "YForce", "onmember": [0]}, "S11": {"name": "S11", "servy1": 35.0, "servx1": 40.0, "fx1": 0.0, "dy1": 0, "dx1": 0, "fm1": 0.0, "dm1": 0, "fy1": 0.0, "onmember": [1], "type": "FixedSupport"}, "S7": {"name": "S7", "servy1": 25.0, "servx1": 35.0, "fx1": 0.0, "dy1": 0, "dx1": 0, "fm1": 0, "dm1": 0.0, "fy1": 0.0, "onmember": [2, 3], "type": "PinSupport"}, "M4": {"servx1": 15, "e": 300000.0, "i": 100.0, "area": 10.0, "servx2": 15, "connectpart": [8], "servy2": 25, "dy1": 0, "dy2": 0, "dx2": 0, "dm1": 0, "dm2": 0, "dx1": 0, "length": 5.0, "ShearDiagram": [[0.0, 0.0], [0.0, 0.0]], "type": "Member", "servy1": 20, "name": "M4"}, "M1": {"servx1": 35, "e": 300000.0, "i": 100.0, "area": 10.0, "servx2": 50, "connectpart": [5, 6, 10, 11], "servy2": 35, "dy1": 0, "dy2": 0, "dx2": 0, "dm1": 0, "dm2": 0, "dx1": 0, "length": 15.0, "ShearDiagram": [[0.0, 0.0], [5.0, 0.0], [5.0, 0.0], [10.0, 0.0], [10.0, 0.0]], "type": "Member", "servy1": 35, "name": "M1"}, "M0": {"servx1": 15,"e": 300000.0, "i": 100.0, "area": 10.0, "servx2": 35, "connectpart": [5, 9], "servy2": 35, "dy1": 0.0, "dy2": 0, "dx2": 0, "dm1": 0.0, "dm2": 0, "dx1": 0.0, "length": 22.360679774997898, "ShearDiagram": [[0.0, 0.0], [11.180339887498949, 0.0], [11.180339887498949, 900.0]], "type": "Member", "servy1": 25, "name": "M0"}, "M3": {"servx1": 15, "e": 300000.0, "i": 100.0, "area": 10.0, "servx2": 35, "connectpart": [7, 8], "servy2": 25, "dy1": 0, "dy2": 0, "dx2": 0, "dm1": 0, "dm2": 0, "dx1": 0, "length": 20.615528128088304, "ShearDiagram": [[0.0, 0.0], [20.615528128088304, 0.0], [0.0, 0.0], [0.0, 0.0]], "type": "Member", "servy1": 20, "name": "M3"}, "M2": {"servx1": 35, "e": 300000.0, "i": 100.0, "area": 10.0, "servx2": 50, "connectpart": [6, 7], "servy2": 35, "dy1": 0, "dy2": 0, "dx2": 0, "dm1": 0, "dm2": 0, "dx1": 0, "length": 18.027756377319946, "ShearDiagram": [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]], "type": "Member", "servy1": 25, "name": "M2"}, "S12": {"name": "S12", "servy1": 35.0, "servx1": 45.0, "fx1": 0.0, "dy1": 0, "dx1":0, "fm1": 0, "dm1": 0.0, "fy1": 0.0, "onmember": [1], "type": "PinSupport"}}}
@@ -12,6 +16,10 @@ function SaveDrawing() {
 				//DisplayDrawingResultPage(answer)
 }
 
+function drawingsaved(status){
+	alert("Saved Successfully")
+}
+
 //some temp code for ajax
 function my_js_callback(data) {
 	//send data to be turned into interpretable data
@@ -19,9 +27,10 @@ function my_js_callback(data) {
 }
 
 function send_form() {
-				SaveDrawing();
-				//var data = JSON.stringify($('#my_form').serializeObject());
-				//alert(AllPartsJSON);
+	SaveDrawing();
+	//var data = JSON.stringify($('#my_form').serializeObject());
+	//alert(AllPartsJSON);
+	
 	Dajaxice.drawings.send_form(my_js_callback, {
 		'form' : AllPartsJSON
 	});
@@ -85,6 +94,7 @@ function DisplayDrawingResultPage(result){
 					name='chartdiv_'+x;
 					//alert(name);
 					var plot1=$.jqplot(name,  [result[x].ShearDiagram]);
+					a+=result[x].ShearDiagram;
 					
 				}
 				
