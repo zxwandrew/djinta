@@ -128,27 +128,35 @@ class Member:
     
     def Get_Details(self):
         temp={}
+        
+        #property
+        temp.update({'Name':self.name})
+        temp.update({'Length':self.length})
+        temp.update({'Moment of Inertia':self.i})
+        temp.update({'Youngs Modulus':self.e})
+        temp.update({'Area':self.area})        
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        
+        #coords
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         temp.update({'servx2':self.x2})
         temp.update({'servy2':self.y2})
         
-        temp.update({'dx1':self.dx1})
-        temp.update({'dy1':self.dy1})
-        temp.update({'dm1':self.dm1})
-        temp.update({'dx2':self.dx2})
-        temp.update({'dy2':self.dy2})
-        temp.update({'dm2':self.dm2})
+        #force and deflections        
+        temp.update({'X-Deflection-1':self.dx1})
+        temp.update({'Y-Deflection-1':self.dy1})
+        temp.update({'Rotational-Deflection-1':self.dm1})
+        temp.update({'X-Deflection-2':self.dx1})
+        temp.update({'Y-Deflection-2':self.dy1})
+        temp.update({'Rotational-Deflection-2':self.dm1})
+
+
         
-        temp.update({'i':self.i})
-        temp.update({'e':self.e})
-        temp.update({'area':self.area})
-        temp.update({'length':self.length})
-        temp.update({'name':self.name})
-        temp.update({'type':self.type})
+        #MISC and Graphs
+        temp.update({'Connected to Parts':self.connectpart})
         temp.update({'ShearDiagram': self.ShearDiagram})
-        
-        temp.update({'connectpart':self.connectpart})
         
 
         return temp
@@ -184,13 +192,15 @@ class joint:
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         
-        temp.update({'dx1':self.dx1})
-        temp.update({'dy1':self.dy1})
-        temp.update({'dm1':self.dm1})
+        temp.update({'X-Deflection-1':self.dx1})
+        temp.update({'Y-Deflection-1':self.dy1})
+        temp.update({'Rotational-Deflection-1':self.dm1})
 
-        temp.update({'name':self.name})
-        temp.update({'type':self.type})
-        temp.update({'onmember': self.onmember})
+        temp.update({'Name':self.name})
+        temp.update({'Category':self.type})
+        temp.update({'Type':self.type})
+        
+        temp.update({'On Member': self.onmember})
 
         return temp
         
@@ -218,19 +228,24 @@ class support:
         
     def Get_Details(self):
         temp={}
+        
+        temp.update({'Name':self.name})
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         
-        temp.update({'dx1':self.dx1})
-        temp.update({'dy1':self.dy1})
-        temp.update({'dm1':self.dm1})
-        temp.update({'fx1':self.fx1})
-        temp.update({'fy1':self.fy1})
-        temp.update({'fm1':self.fm1})
+        temp.update({'X-Deflection-1':self.dx1})
+        temp.update({'Y-Deflection-1':self.dy1})
+        temp.update({'Rotational-Deflection-1':self.dm1})
 
-        temp.update({'name':self.name})
-        temp.update({'type':self.type})
-        temp.update({'onmember': self.onmember})
+        temp.update({'X-Force-1':self.fx1})
+        temp.update({'Y-Force-1':self.fy1})
+        temp.update({'M-Force-1':self.fm1})
+
+        
+        temp.update({'On Member': self.onmember})
 
         return temp
         
@@ -256,14 +271,15 @@ class force:
     
     def Get_Details(self):
         temp={}
+        temp.update({'Name':self.name})
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        temp.update({'Magnitude':self.magnitude})
+        
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
-
-        temp.update({'name':self.name})
-        temp.update({'category':self.category})
-        temp.update({'type':self.type})
-        temp.update({'magnitude':self.magnitude})
-        temp.update({'onmember': self.onmember})
+        
+        temp.update({'On Member': self.onmember})
 
         return temp
 
@@ -288,6 +304,13 @@ class dforce:
     
     def Get_Details(self):
         temp={}
+        temp.update({'Name':self.name})
+        temp.update({'Direction':self.direction})
+        temp.update({'Slope':self.slope})
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        temp.update({'Magnitude':self.magnitude})
+        
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         temp.update({'servx2':self.x2})
@@ -298,14 +321,7 @@ class dforce:
         temp.update({'r1':self.r2})
         temp.update({'r2':self.r2})
 
-
-        temp.update({'name':self.name})
-        temp.update({'direction':self.direction})
-        temp.update({'slope':self.slope})
-        temp.update({'category':self.category})
-        temp.update({'type':self.type})
-        temp.update({'magnitude':self.magnitude})
-        temp.update({'onmember': self.onmember})
+        temp.update({'On Member': self.onmember})
 
         return temp
 
@@ -995,7 +1011,7 @@ def ReactionGlobalToLocal(member, direction, magnitude, AorS):
     #if Y direction
     if(direction=="Y"):
         if(AorS=="Axial"):
-            axial=float(magnitude*(cos(angle)))
+            axial=float(magnitude*(sin(angle)))
             return axial
         else:
             shear=float(magnitude*(cos(angle)))
@@ -1070,7 +1086,7 @@ def ShearDiagram(AllParts):
                         tempforce=tempforce1+tempforce2
                         if(tempforce!=0):
                             temp=[distance, tempforce]
-                            ShearDiagram.append(temp) 
+                            ShearDiagram.append(temp)
                             
                 #if not the first one
                 elif(AllParts[member.connectpart[pos1]].category=="Force" or AllParts[member.connectpart[pos1]].category=="Support"):
@@ -1079,6 +1095,7 @@ def ShearDiagram(AllParts):
                     distance=DistanceFromStart(member,AllParts[member.connectpart[pos1]])
                     tempprev=[distance,prevforce]
                     ShearDiagram.append(tempprev)
+                    
                         
                     #after force is applied
                     if(AllParts[member.connectpart[pos1]].category=="Force"):
@@ -1101,6 +1118,9 @@ def ShearDiagram(AllParts):
                         ShearDiagram.append(temp)
                             
                 #print(ShearDiagram)
+
+                
+                
                 pos1+=1
             prevforce=ShearDiagram[len(ShearDiagram)-1][1]
             tempprev=[member.length, prevforce]
@@ -1436,7 +1456,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 20, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'F2', u'servy1': 20, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}]
     #cantilever
     #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 10, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 150, u'x1': 150, u'type': u'member'}, {u'name': u'S1', u'servy1': 15, u'servx1': 10, u'y1': 150, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 420, u'x1': 420, u'type': u'YForce'}]
-    
+    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 150, u'x1': 225, u'type': u'member'}, {u'name': u'S1', u'servy1': 15, u'servx1': 15, u'y1': 150, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 15, u'servx1': 35, u'magnitude': u'100', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     
     for x in form:
         print(x['type'])

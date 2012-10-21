@@ -128,27 +128,35 @@ class Member:
     
     def Get_Details(self):
         temp={}
+        
+        #property
+        temp.update({'Name':self.name})
+        temp.update({'Length':self.length})
+        temp.update({'Moment of Inertia':self.i})
+        temp.update({'Youngs Modulus':self.e})
+        temp.update({'Area':self.area})        
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        
+        #coords
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         temp.update({'servx2':self.x2})
         temp.update({'servy2':self.y2})
         
-        temp.update({'dx1':self.dx1})
-        temp.update({'dy1':self.dy1})
-        temp.update({'dm1':self.dm1})
-        temp.update({'dx2':self.dx2})
-        temp.update({'dy2':self.dy2})
-        temp.update({'dm2':self.dm2})
+        #force and deflections        
+        temp.update({'X-Deflection-1':self.dx1})
+        temp.update({'Y-Deflection-1':self.dy1})
+        temp.update({'Rotational-Deflection-1':self.dm1})
+        temp.update({'X-Deflection-2':self.dx1})
+        temp.update({'Y-Deflection-2':self.dy1})
+        temp.update({'Rotational-Deflection-2':self.dm1})
+
+
         
-        temp.update({'i':self.i})
-        temp.update({'e':self.e})
-        temp.update({'area':self.area})
-        temp.update({'length':self.length})
-        temp.update({'name':self.name})
-        temp.update({'type':self.type})
+        #MISC and Graphs
+        temp.update({'Connected to Parts':self.connectpart})
         temp.update({'ShearDiagram': self.ShearDiagram})
-        
-        temp.update({'connectpart':self.connectpart})
         
 
         return temp
@@ -184,13 +192,15 @@ class joint:
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         
-        temp.update({'dx1':self.dx1})
-        temp.update({'dy1':self.dy1})
-        temp.update({'dm1':self.dm1})
+        temp.update({'X-Deflection-1':self.dx1})
+        temp.update({'Y-Deflection-1':self.dy1})
+        temp.update({'Rotational-Deflection-1':self.dm1})
 
-        temp.update({'name':self.name})
-        temp.update({'type':self.type})
-        temp.update({'onmember': self.onmember})
+        temp.update({'Name':self.name})
+        temp.update({'Category':self.type})
+        temp.update({'Type':self.type})
+        
+        temp.update({'On Member': self.onmember})
 
         return temp
         
@@ -218,19 +228,24 @@ class support:
         
     def Get_Details(self):
         temp={}
+        
+        temp.update({'Name':self.name})
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         
-        temp.update({'dx1':self.dx1})
-        temp.update({'dy1':self.dy1})
-        temp.update({'dm1':self.dm1})
-        temp.update({'fx1':self.fx1})
-        temp.update({'fy1':self.fy1})
-        temp.update({'fm1':self.fm1})
+        temp.update({'X-Deflection-1':self.dx1})
+        temp.update({'Y-Deflection-1':self.dy1})
+        temp.update({'Rotational-Deflection-1':self.dm1})
 
-        temp.update({'name':self.name})
-        temp.update({'type':self.type})
-        temp.update({'onmember': self.onmember})
+        temp.update({'X-Force-1':self.fx1})
+        temp.update({'Y-Force-1':self.fy1})
+        temp.update({'M-Force-1':self.fm1})
+
+        
+        temp.update({'On Member': self.onmember})
 
         return temp
         
@@ -256,14 +271,15 @@ class force:
     
     def Get_Details(self):
         temp={}
+        temp.update({'Name':self.name})
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        temp.update({'Magnitude':self.magnitude})
+        
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
-
-        temp.update({'name':self.name})
-        temp.update({'category':self.category})
-        temp.update({'type':self.type})
-        temp.update({'magnitude':self.magnitude})
-        temp.update({'onmember': self.onmember})
+        
+        temp.update({'On Member': self.onmember})
 
         return temp
 
@@ -288,6 +304,13 @@ class dforce:
     
     def Get_Details(self):
         temp={}
+        temp.update({'Name':self.name})
+        temp.update({'Direction':self.direction})
+        temp.update({'Slope':self.slope})
+        temp.update({'Category':self.category})
+        temp.update({'Type':self.type})
+        temp.update({'Magnitude':self.magnitude})
+        
         temp.update({'servx1':self.x1})
         temp.update({'servy1':self.y1})
         temp.update({'servx2':self.x2})
@@ -298,14 +321,7 @@ class dforce:
         temp.update({'r1':self.r2})
         temp.update({'r2':self.r2})
 
-
-        temp.update({'name':self.name})
-        temp.update({'direction':self.direction})
-        temp.update({'slope':self.slope})
-        temp.update({'category':self.category})
-        temp.update({'type':self.type})
-        temp.update({'magnitude':self.magnitude})
-        temp.update({'onmember': self.onmember})
+        temp.update({'On Member': self.onmember})
 
         return temp
 
