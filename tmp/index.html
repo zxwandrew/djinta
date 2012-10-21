@@ -21,6 +21,9 @@
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.json-2.3.min.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.event.drag-2.2.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/display_results.js"></script>
+		<script language="javascript" type="text/javascript" src="{{STATIC_URL}}file/jqplot/jquery.jqplot.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/static/jqplot/jquery.jqplot.min.css" />
+		{% dajaxice_js_import %}
 		{% dajaxice_js_import %}
 		-->
 		
@@ -28,8 +31,6 @@
 		<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>-->
 		<!-- Replace the following with root of your domain and delete these references
 		<link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
-		<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
-		<link rel="shortcut icon" href="static/favicon.ico" />
 		-->
 
 		<!-- TOGGLE BETWEEN THIS 1!!!!!!!!!! (2)-->

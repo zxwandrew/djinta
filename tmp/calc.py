@@ -109,6 +109,7 @@ class Member:
         self.area=float(areat)
         self.length = float(sqrt(abs(self.x1-self.x2)**2+abs(self.y1-self.y2)**2))
         self.name=namet
+        self.category="Member"
         
         #actual answers
         self.dx1=0
@@ -121,6 +122,7 @@ class Member:
 
         self.type='Member'
         self.connectpart=[]
+        self.ShearDiagram=[]
     
     def Get_Details(self):
         temp={}
@@ -142,6 +144,7 @@ class Member:
         temp.update({'length':self.length})
         temp.update({'name':self.name})
         temp.update({'type':self.type})
+        temp.update({'ShearDiagram': self.ShearDiagram})
         
         temp.update({'connectpart':self.connectpart})
         
@@ -167,6 +170,7 @@ class joint:
         self.type=typet
         self.name=namet
         self.onmember=[]
+        self.category="Joint"
         
         #actual answers
         self.dx1=0
@@ -208,6 +212,7 @@ class support:
         self.fx1=0
         self.fy1=0
         self.fm1=0
+        self.category="Support"
         
     def Get_Details(self):
         temp={}
@@ -275,6 +280,7 @@ class dforce:
         self.onmember=onmembert
         self.slope=slopet
         self.name=namet
+        self.category="DForce"
     def gettype(self):
         return self.type
     
@@ -951,10 +957,155 @@ def MatrixCreation(connections, points):
 
     return KMatrix, pointrecord , ForceVector, DeflectionVector, variable, Force_Point_Assoc, Deflection_Point_Assoc
 
-def ForceDiagram():
+
+def DistanceFromStart(Part1, Part2):
+    length = float(abs(sqrt(abs( (Part2.x1-Part1.x1)**2+(Part2.y1-Part1.y1)**2))))
+    return length
+
+def ForceGlobalToLocal(member,Force, AorS):
+    if(member.x2-member.x1):
+        angle=math.pi/2
+    else:
+        angle = math.atan(float(member.y2-member.y1)/float(member.x2-member.x1))
+    #if x force
+    if(Force.type=="XForce"):
+        if(AorS=="Axial"):
+            axial=float(Force.magnitude*(sin(angle)))
+            return axial
+        else:
+            shear=float(Force.magnitude*(cos(angle)))
+            return shear
+    #if y force
+    if(Force.type=="YForce"):
+        if(AorS=="Axial"):
+            axial=float(Force.magnitude*(cos(angle)))
+            return axial
+        else:
+            shear=float(Force.magnitude*(sin(angle)))
+            return shear
+    
+def ReactionGlobalToLocal(member, direction, magnitude, AorS):
+    if(member.x2-member.x1==0):
+        angle=math.pi/2
+    else:
+        angle = math.atan(float(member.y2-member.y1)/float(member.x2-member.x1))
+    
+    #if Y direction
+    if(direction=="Y"):
+        if(AorS=="Axial"):
+            axial=float(magnitude*(cos(angle)))
+            return axial
+        else:
+            shear=float(magnitude*(sin(angle)))
+            return shear
+    
+    if(direction=="X"):
+        if(AorS=="Axial"):
+            axial=float(magnitude*(sin(angle)))
+            return axial
+        else:
+            shear=float(magnitude*(cos(angle)))
+            return shear
+
+def ForceDiagram(AllParts):
+    for member in AllParts:
+        if (member.type=='member'):
+            XForceDiagram=[]
+            YForceDiagram=[]
+            MForceDiagram=[]
+            #get reaction forces and applied loads
+            for connectpart in member.connectpart:
+                #calc distance from beginning ot the part
+                distance=DistanceFromStart(Member,connectpart)
+                if(connectpart.category=="Force"):
+                    if(connectpart.type=="XForce"):
+                        temp=[]
+                        temp.append(distance)
+                        temp.append(connectpart.magnitude)
+                        XForceDiagram.append(temp)
+                    if(connectpart.type=="YForce"):
+                        temp=[]
+                        temp.append(distance)
+                        temp.append(connectpart.magnitude)
+                        YForceDiagram.append(temp)
+                    if(connectpart.type=="MForce"):
+                        temp=[]
+                        temp.append(distance)
+                        temp.append(connectpart.magnitude)
+                        MForceDiagram.append(temp)
+                if(connectpart.category=="DForce"):
+                    temp=[]
+          
     return 0
 
-def ShearDiagram():
+def ShearDiagram(AllParts):
+    for member in AllParts:
+        #go through all the members
+        if (member.type=='Member'):
+            ShearDiagram=[]
+            temp=[0.0,0.0]
+            ShearDiagram.append(temp)
+            #get reaction forces and applied loads, ignore dforce for now
+            pos1=0
+            while pos1 in range(len(member.connectpart)):
+                #if the first 
+                if(pos1==0 and (AllParts[member.connectpart[pos1]].category=="Force" or AllParts[member.connectpart[pos1]].category=="Support")):
+                    distance=DistanceFromStart(member,AllParts[member.connectpart[pos1]])
+                    temp1=[distance,0.0]
+                    ShearDiagram.append(temp1)
+                    if(AllParts[member.connectpart[pos1]].category=="Force"):
+                        if(AllParts[member.connectpart[pos1]].type=="XForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            temp=[distance, temforce]
+                            ShearDiagram.append(temp)                            
+                        if(AllParts[member.connectpart[pos1]].type=="YForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            temp=[distance, temforce]
+                            ShearDiagram.append(temp)
+                    if(AllParts[member.connectpart[pos1]].category=="Support"):
+                        tempforce1=ReactionGlobalToLocal(member, 'X', AllParts[member.connectpart[pos1]].fx1, "Shear")
+                        tempforce2=ReactionGlobalToLocal(member, 'Y', AllParts[member.connectpart[pos1]].fy1, "Shear")
+                        tempforce=tempforce1+tempforce2
+                        if(tempforce!=0):
+                            temp=[distance, tempforce]
+                            ShearDiagram.append(temp) 
+                            
+                #if not the first one
+                elif(AllParts[member.connectpart[pos1]].category=="Force" or AllParts[member.connectpart[pos1]].category=="Support"):
+                    #before the force is applied
+                    prevforce=ShearDiagram[len(ShearDiagram)-1][1]
+                    distance=DistanceFromStart(member,AllParts[member.connectpart[pos1]])
+                    tempprev=[distance,prevforce]
+                    ShearDiagram.append(tempprev)
+                        
+                    #after force is applied
+                    if(AllParts[member.connectpart[pos1]].category=="Force"):
+                        if(AllParts[member.connectpart[pos1]].type=="XForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            tempforce=prevforce+tempforce
+                            temp=[distance, tempforce]
+                            ShearDiagram.append(temp)                            
+                        if(AllParts[member.connectpart[pos1]].type=="YForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            tempforce=prevforce+tempforce
+                            temp=[distance, tempforce]
+                            ShearDiagram.append(temp)
+                    if(AllParts[member.connectpart[pos1]].category=="Support"):
+                        tempforce1=ReactionGlobalToLocal(member, 'X', AllParts[member.connectpart[pos1]].fx1, "Shear")
+                        tempforce2=ReactionGlobalToLocal(member, 'Y', AllParts[member.connectpart[pos1]].fy1, "Shear")
+                        tempforce=tempforce1+tempforce2
+                        tempforce=prevforce+tempforce
+                        temp=[distance, tempforce]
+                        ShearDiagram.append(temp)
+                            
+                #print(ShearDiagram)
+                member.ShearDiagram=ShearDiagram
+                pos1+=1
+                    
+    
+    return 0
+
+def AxialDiagram():
     return 0
 
 def MomentDiagram():
@@ -1267,7 +1418,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 10, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 300, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2':30, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'name': u'S2', u'servy1': 25, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'YSupport'}, {u'name': u'S3',u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 30, u'servx1': 45, u'y1': 225, u'x1': 675, u'type': u'XSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100',u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 30, u'servx1': 45, u'magnitude': u'500', u'y1': 675, u'x1': 675, u'type': u'MForce'}]
     #Use the one below currently, 21x21
-    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
+    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
     #crazy mess
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 25, u'servx2': 35, u'x2': 525, u'servy2':20, u'y1': 375, u'x1': 375, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2': 25, u'y1': 375, u'x1': 525, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 45, u'servx2': 45, u'x2': 675, u'servy2': 10, u'y1': 300, u'x1': 675, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 45, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 525, u'x1': 675, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M5', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 35, u'servx2': 20, u'x2':300, u'servy2': 10, u'y1': 450, u'x1': 525, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M6', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 20, u'servx2': 10, u'x2': 150, u'servy2': 20, u'y1': 525, u'x1': 300, u'type': u'member'}, {u'name': u'P7', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150,u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 20, u'servx1': 35, u'y1': 375, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P9', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P10', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P11', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P12', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P13', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1':300, u'type': u'FixedJoint'}, {u'name': u'S14', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'XSupport'}, {u'name': u'S15', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'XSupport'}, {u'name': u'S16', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'YSupport'}, {u'name': u'S17', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'YSupport'}, {u'name': u'S18', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'PinSupport'}, {u'name': u'S19', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1': 300, u'type': u'PinSupport'}, {u'name': u'F20', u'servy1': 12, u'servx1': 25, u'magnitude': 1, u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F21', u'servy1': 13, u'servx1': 39, u'magnitude': 1, u'y1': 585, u'x1': 585, u'type': u'YForce'}]
     #three beam, tilted, with y and moment
@@ -1277,7 +1428,7 @@ def MainParse(form):
     #simplejson
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 20, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'F2', u'servy1': 20, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}]
     #cantilever
-    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 10, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 150, u'x1': 150, u'type': u'member'}, {u'name': u'S1', u'servy1': 15, u'servx1': 10, u'y1': 150, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 420, u'x1': 420, u'type': u'YForce'}]
+    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 10, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 150, u'x1': 150, u'type': u'member'}, {u'name': u'S1', u'servy1': 15, u'servx1': 10, u'y1': 150, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 420, u'x1': 420, u'type': u'YForce'}]
     
     
     for x in form:
@@ -1442,9 +1593,7 @@ def MainParse(form):
             if(assoc[2]=='m'):
                 assoc[1].dm1=float(answer[assoc[0]])
     
-    
-    answer=42
-    #print(answer)
+    ShearDiagram(AllParts)
     
     AllJson={}
     #print member just to test
@@ -1455,7 +1604,10 @@ def MainParse(form):
     AllJson.update({'Calculated': 'True'})
     #print(AllJson)
     
+    
+    #DIFFERENT FROM HERE DOWN!!!!!!!!!!!!!!!!!!!
     print(simplejson.dumps(AllJson))
+    #print(AllJson)
     
     
 

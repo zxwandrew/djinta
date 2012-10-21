@@ -21,6 +21,9 @@
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.json-2.3.min.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/jquery.event.drag-2.2.js"></script>
 		<script type="text/javascript" src="{{STATIC_URL}}file/display_results.js"></script>
+		<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{STATIC_URL}}file/excanvas.min.js"></script><![endif]-->
+		<script language="javascript" type="text/javascript" src="{{STATIC_URL}}file/jqplot/jquery.jqplot.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/static/jqplot/jquery.jqplot.min.css" />
 		{% dajaxice_js_import %}
 		<!---->
 		
@@ -28,8 +31,6 @@
 		<!--<script type="text/javascript" src="{{ MEDIA_URL }}jquery.dajax.core.js"></script>-->
 		<!-- Replace the following with root of your domain and delete these references
 		<link rel="apple-touch-icon" href="/media/apple-touch-icon.png" />
-		<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
-		<link rel="shortcut icon" href="static/favicon.ico" />
 		-->
 
 		<!-- TOGGLE BETWEEN THIS 1!!!!!!!!!! (2)
@@ -53,6 +54,7 @@
 			var ObjNum = 0;
 			var Snapping = 'false';
 			var AllParts = new Array;
+			var AllResultPart = new Array;
 			var AllPartsJSON;
 			var pastselect = new Array;
 
@@ -174,6 +176,7 @@
 					AllParts[matchingselected[j]].r1 = form.r1.value;
 					AllParts[matchingselected[j]].r2 = form.r2.value;
 					AllParts[matchingselected[j]].direction = form.direction.value;
+
 					
 					f1 = form.f1.value;
 					f2 = form.f2.value;
@@ -709,7 +712,6 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 					DrawingInterfaceHeight = $(window).height() - 62;
 					$(".Drawing-Interface").css("height", DrawingInterfaceHeight);
 				}
-
 			}
 
 		</script>
@@ -777,12 +779,19 @@ else if(AllParts[selected[0]].type == "XForce" || AllParts[selected[0]].type == 
 
 		<div class="Drawing-Interface">
 			<div class="Result-Background">
-				<div class ="Result-Pane">
+				
+				<div class ="Result-Pane">	
+					
+					<div id="chartdiv" style="height:300px;width:300px; "></div>
+					
+					
 					<a href='javascript: HideResult()'>Back To Drawing</a>
 					<p>No Data Yet!</p>
 					<br/>
 				</div>
+				
 			</div>
+			
 			<div class="Tool-Bar">
 				<div class="Tool-Bar-Slider Scrollable">
 

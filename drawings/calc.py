@@ -1,4 +1,4 @@
-import random
+import randomimport random
 import django
 import datetime
 import sys
@@ -23,7 +23,6 @@ from decimal import Decimal
 from operator import itemgetter, attrgetter
 
 # file charts.py, a stupid little test to see if plot was working
-'''
 def simple(request):
     fig = Figure()
     ax = fig.add_subplot(111)
@@ -42,15 +41,17 @@ def simple(request):
     response = django.http.HttpResponse(content_type='image/png')
     canvas.print_png(response)
     return response
-'''
 
 class Points:
     def __init__(self):
         self.points=[]
     def add(self, x1t, y1t, partt):
-        #check if point already exists (probably need to be optimized), if exist return the point
+        #check if point already exists (probably need to be optimized), if exist return position
         matchcount=0
         for pos1 in range(len(self.points)):
+            #print('break2')
+            #print(partt.type)
+            #print(self.points[pos1][2].type)
             if(self.points[pos1][0]==x1t and self.points[pos1][1]==y1t and self.points[pos1][2].type=='Member' and partt.type=='Member'):
                 matchcount+=1
                 return pos1
@@ -58,12 +59,11 @@ class Points:
                 matchcount+=1
                 return pos1
         
-        #if the point pass the check above, add to points
+        #add to points
         if(matchcount==0):
             temp=[x1t, y1t, partt]
             self.points.append(temp) 
             return len(self.points)-1
-        
     def getX(self,x):
         return self.points[x][0]
     def getY(self,x):
@@ -76,7 +76,7 @@ class Connections:
     def __init__(self):
         self.connections=[]
     def add(self, c1t, c2t, membert, anglet, lengtht, forcelistt,points):
-        #check if connection already exists (probably need to be optimized)
+    #check if connection already exists (probably need to be optimized)
         matchcount=0
         for connection in self.connections:
             if((connection['c1']==c1t and connection['c2']==c2t) or (connection['c1']==c2t and connection['c2']==c1t)):
@@ -91,14 +91,13 @@ class Connections:
 
 class Member:
     
-    #creat the member
     def __init__(self, x1t, y1t, x2t, y2t, it, et, areat,namet):
-        #determine the point that comes first relative to coord system
         if( (float(min(x1t,x2t))==x1t) or (x1t==x2t and y1t==float(max(y1t,y2t)))):
             self.x1=x1t
             self.y1=y1t
             self.x2=x2t
             self.y2=y2t
+            
         else:
             self.x1=x2t
             self.y1=y2t
@@ -110,6 +109,7 @@ class Member:
         self.area=float(areat)
         self.length = float(sqrt(abs(self.x1-self.x2)**2+abs(self.y1-self.y2)**2))
         self.name=namet
+        self.category="Member"
         
         #actual answers
         self.dx1=0
@@ -122,6 +122,7 @@ class Member:
 
         self.type='Member'
         self.connectpart=[]
+        self.ShearDiagram=[]
     
     def Get_Details(self):
         temp={}
@@ -143,6 +144,8 @@ class Member:
         temp.update({'length':self.length})
         temp.update({'name':self.name})
         temp.update({'type':self.type})
+        temp.update({'ShearDiagram': self.ShearDiagram})
+        
         temp.update({'connectpart':self.connectpart})
         
 
@@ -167,6 +170,7 @@ class joint:
         self.type=typet
         self.name=namet
         self.onmember=[]
+        self.category="Joint"
         
         #actual answers
         self.dx1=0
@@ -208,6 +212,7 @@ class support:
         self.fx1=0
         self.fy1=0
         self.fm1=0
+        self.category="Support"
         
     def Get_Details(self):
         temp={}
@@ -217,9 +222,9 @@ class support:
         temp.update({'dx1':self.dx1})
         temp.update({'dy1':self.dy1})
         temp.update({'dm1':self.dm1})
-        temp.update({'fx1':self.dx1})
-        temp.update({'fy1':self.dy1})
-        temp.update({'fm1':self.dm1})
+        temp.update({'fx1':self.fx1})
+        temp.update({'fy1':self.fy1})
+        temp.update({'fm1':self.fm1})
 
         temp.update({'name':self.name})
         temp.update({'type':self.type})
@@ -229,7 +234,6 @@ class support:
         
         
 class force:
-    
     def __init__(self, x1t, y1t, typet, magnitudet,namet):
         self.onmember=[]
         self.x1=float(x1t)
@@ -239,7 +243,6 @@ class force:
         self.name=namet
         self.category='Force'
         self.onmember=[]
-        
     def getx1(self):
         return self.x1
     def gettype(self):
@@ -263,7 +266,6 @@ class force:
         return temp
 
 class dforce:
-    
     def __init__(self, x1t, y1t, x2t,y2t, typet, f1t, f2t, directiont, onmembert, r1t, r2t, slopet, namet):
         self.x1=float(x1t)
         self.y1=float(y1t)
@@ -278,6 +280,7 @@ class dforce:
         self.onmember=onmembert
         self.slope=slopet
         self.name=namet
+        self.category="DForce"
     def gettype(self):
         return self.type
     
@@ -308,7 +311,7 @@ def onmember(AllParts, Part, partcount):
     allcount=0
     for Member in AllParts:
         if(Member.type=='Member'):
-            #algo for testing if on member using cross product
+            #algo for testing if on member
             if(Part.x1>=Member.x1 and Part.x1<=Member.x2):
                 v1=[Member.x2-Member.x1, Member.y2-Member.y1]
                 v2=[Member.x2-Part.x1, Member.y2-Part.y1]
@@ -324,12 +327,15 @@ def PointsFromMember(Member, AllParts):
     templist=[]
     temp1=[Member.x1, Member.y1, Member]
     temp2=[Member.x2, Member.y2, Member]
-
+    
+    
+    print(Member.x1, Member.y1, ' ', Member.x2, Member.y2)
     
     #very inefficient :/
     #check for conflicts(position and type){BUG}
     for connectpart in Member.connectpart:
         conflict=bool(False)
+        
         
         #for temps in templist:
         #if it is a support type, check if it is at end of member, if not just add
@@ -349,13 +355,16 @@ def PointsFromMember(Member, AllParts):
             elif(AllParts[connectpart].x1==Member.x2 and AllParts[connectpart].y1==Member.y2):
                 temp2[2]=AllParts[connectpart]
                 conflict=bool(True)
-
+            #else:
+                #confilct=bool(True)
+                
         #if no conflict add to templist
         if(conflict==False):
             temp=[AllParts[connectpart].x1, AllParts[connectpart].y1, AllParts[connectpart]]
             templist.append(temp)
     
-
+    
+    #templist.append(temp2)#add endpoint 2
     #sort (insertion sort?) SORT IS NOT COMPLETELY ACCURATE!! (currently sort by x ASC then y DESC, but need to sort relative to the member){BUG}
     sortlist=[]
     sortlist.append(temp1)
@@ -368,7 +377,8 @@ def PointsFromMember(Member, AllParts):
         for pos2 in range(len(sortlist)):
             if(sortlist[pos2][0]>templist[pos1][0] or (sortlist[pos2][0]==templist[pos1][0] and sortlist[pos2][1]<templist[pos1][1])):
                 sortlist.insert(pos2, templist[pos1])
-
+    #add endpoint 1 to front of list
+    #sortlist.insert[0,temp1] 
     sortlist.append(temp2)
     return sortlist
 
@@ -386,7 +396,7 @@ def MatrixCreation(connections, points):
             pointrecord.update({connection['c2']:[pos,pos+1,pos+2]})
             pos+=3
     
-    #print(pointrecord)
+    print(pointrecord)
     
     #Generate matrix of 0s
     Matrix_K=[]
@@ -463,9 +473,7 @@ def MatrixCreation(connections, points):
     
     
     ForceVector=[]
-    #list of points that has been checked
     CheckedPoints=[]
-    #keep track of unknowns and the point it is related to
     Force_Point_Assoc=[]
     x=0
     #create empty forcevector
@@ -477,10 +485,9 @@ def MatrixCreation(connections, points):
     #generate force matrix
     for connection in connections.connections:
         #check so wont have to repeat
-        #Do connection 1
         if(connection['c1'] not in CheckedPoints):
             #For Fixed Support
-            #print('one', f, points.getPart(connection['c1']).type)
+            print('one', f, points.getPart(connection['c1']).type)
             if(points.getPart(connection['c1']).type=='FixedSupport'):
                 #x direction unknown
                 tempname='F'+str(f)
@@ -535,6 +542,8 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c1']][0]]=x
                 temp=[x,points.getPart(connection['c1']),'x']
                 Force_Point_Assoc.append(temp) 
+                print(f)
+                print(ForceVector)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
@@ -550,7 +559,7 @@ def MatrixCreation(connections, points):
             #check so wont have to repeat
         
         if(connection['c2'] not in CheckedPoints):
-            #print('two',f, points.getPart(connection['c2']).type)
+            print('two',f, points.getPart(connection['c2']).type)
             #For Fixed Support
             if(points.getPart(connection['c2']).type=='FixedSupport'):
                 #x direction unknown
@@ -606,7 +615,7 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c2']][0]]=x
                 temp=[x,points.getPart(connection['c2']),'x']
                 Force_Point_Assoc.append(temp) 
-                #print(f)
+                print(f)
                 f+=1
                 #y direction unknown
                 tempname='F'+str(f)
@@ -615,7 +624,7 @@ def MatrixCreation(connections, points):
                 ForceVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
                 Force_Point_Assoc.append(temp)
-                #print(f) 
+                print(f) 
                 f+=1
             #Add to list of points that have been checked
             CheckedPoints.append(connection['c2'])
@@ -669,7 +678,7 @@ def MatrixCreation(connections, points):
         #print(points.getPart(connection['c1']).type)
         #check so wont have to repeat
         if(connection['c1'] not in CheckedPoints2):
-            #print('d_one', d,connection['c1'] )
+            print('d_one', d,connection['c1'] )
             #For X Support
             if(points.getPart(connection['c1']).type=='XSupport'):
                 #y direction unknown
@@ -800,7 +809,7 @@ def MatrixCreation(connections, points):
         #For point 2__________________________________________________
         if(connection['c2'] not in CheckedPoints2):
             #print(d,connection['c2'] )
-            #print('d-two',d, points.getPart(connection['c2']).type)
+            print('d-two',d, points.getPart(connection['c2']).type)
             #for X support
             if(points.getPart(connection['c2']).type=='XSupport'):
                 #y direction unknown
@@ -810,7 +819,7 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][1]]=x
                 temp=[x,points.getPart(connection['c2']),'y']
                 Deflection_Point_Assoc.append(temp) 
-                #print(d)
+                print(d)
                 d+=1
                 #m direction unknown
                 tempname='D'+str(d)
@@ -819,7 +828,7 @@ def MatrixCreation(connections, points):
                 DeflectionVector[pointrecord[connection['c2']][2]]=x
                 temp=[x,points.getPart(connection['c2']),'m']
                 Deflection_Point_Assoc.append(temp) 
-                #print(d)
+                print(d)
                 d+=1
             #For Y Support
             if(points.getPart(connection['c2']).type=='YSupport'):
@@ -949,7 +958,162 @@ def MatrixCreation(connections, points):
     return KMatrix, pointrecord , ForceVector, DeflectionVector, variable, Force_Point_Assoc, Deflection_Point_Assoc
 
 
-# This Function is ditched in favor of MatrixCreation function==============================================
+def DistanceFromStart(Part1, Part2):
+    length = float(abs(sqrt(abs( (Part2.x1-Part1.x1)**2+(Part2.y1-Part1.y1)**2))))
+    return length
+
+def ForceGlobalToLocal(member,Force, AorS):
+    if(member.x2-member.x1):
+        angle=math.pi/2
+    else:
+        angle = math.atan(float(member.y2-member.y1)/float(member.x2-member.x1))
+    #if x force
+    if(Force.type=="XForce"):
+        if(AorS=="Axial"):
+            axial=float(Force.magnitude*(sin(angle)))
+            return axial
+        else:
+            shear=float(Force.magnitude*(cos(angle)))
+            return shear
+    #if y force
+    if(Force.type=="YForce"):
+        if(AorS=="Axial"):
+            axial=float(Force.magnitude*(cos(angle)))
+            return axial
+        else:
+            shear=float(Force.magnitude*(sin(angle)))
+            return shear
+    
+def ReactionGlobalToLocal(member, direction, magnitude, AorS):
+    if(member.x2-member.x1==0):
+        angle=math.pi/2
+    else:
+        angle = math.atan(float(member.y2-member.y1)/float(member.x2-member.x1))
+    
+    #if Y direction
+    if(direction=="Y"):
+        if(AorS=="Axial"):
+            axial=float(magnitude*(cos(angle)))
+            return axial
+        else:
+            shear=float(magnitude*(sin(angle)))
+            return shear
+    
+    if(direction=="X"):
+        if(AorS=="Axial"):
+            axial=float(magnitude*(sin(angle)))
+            return axial
+        else:
+            shear=float(magnitude*(cos(angle)))
+            return shear
+
+def ForceDiagram(AllParts):
+    for member in AllParts:
+        if (member.type=='member'):
+            XForceDiagram=[]
+            YForceDiagram=[]
+            MForceDiagram=[]
+            #get reaction forces and applied loads
+            for connectpart in member.connectpart:
+                #calc distance from beginning ot the part
+                distance=DistanceFromStart(Member,connectpart)
+                if(connectpart.category=="Force"):
+                    if(connectpart.type=="XForce"):
+                        temp=[]
+                        temp.append(distance)
+                        temp.append(connectpart.magnitude)
+                        XForceDiagram.append(temp)
+                    if(connectpart.type=="YForce"):
+                        temp=[]
+                        temp.append(distance)
+                        temp.append(connectpart.magnitude)
+                        YForceDiagram.append(temp)
+                    if(connectpart.type=="MForce"):
+                        temp=[]
+                        temp.append(distance)
+                        temp.append(connectpart.magnitude)
+                        MForceDiagram.append(temp)
+                if(connectpart.category=="DForce"):
+                    temp=[]
+          
+    return 0
+
+def ShearDiagram(AllParts):
+    for member in AllParts:
+        #go through all the members
+        if (member.type=='Member'):
+            ShearDiagram=[]
+            temp=[0.0,0.0]
+            ShearDiagram.append(temp)
+            #get reaction forces and applied loads, ignore dforce for now
+            pos1=0
+            while pos1 in range(len(member.connectpart)):
+                #if the first 
+                if(pos1==0 and (AllParts[member.connectpart[pos1]].category=="Force" or AllParts[member.connectpart[pos1]].category=="Support")):
+                    distance=DistanceFromStart(member,AllParts[member.connectpart[pos1]])
+                    temp1=[distance,0.0]
+                    ShearDiagram.append(temp1)
+                    if(AllParts[member.connectpart[pos1]].category=="Force"):
+                        if(AllParts[member.connectpart[pos1]].type=="XForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            temp=[distance, temforce]
+                            ShearDiagram.append(temp)                            
+                        if(AllParts[member.connectpart[pos1]].type=="YForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            temp=[distance, temforce]
+                            ShearDiagram.append(temp)
+                    if(AllParts[member.connectpart[pos1]].category=="Support"):
+                        tempforce1=ReactionGlobalToLocal(member, 'X', AllParts[member.connectpart[pos1]].fx1, "Shear")
+                        tempforce2=ReactionGlobalToLocal(member, 'Y', AllParts[member.connectpart[pos1]].fy1, "Shear")
+                        tempforce=tempforce1+tempforce2
+                        if(tempforce!=0):
+                            temp=[distance, tempforce]
+                            ShearDiagram.append(temp) 
+                            
+                #if not the first one
+                elif(AllParts[member.connectpart[pos1]].category=="Force" or AllParts[member.connectpart[pos1]].category=="Support"):
+                    #before the force is applied
+                    prevforce=ShearDiagram[len(ShearDiagram)-1][1]
+                    distance=DistanceFromStart(member,AllParts[member.connectpart[pos1]])
+                    tempprev=[distance,prevforce]
+                    ShearDiagram.append(tempprev)
+                        
+                    #after force is applied
+                    if(AllParts[member.connectpart[pos1]].category=="Force"):
+                        if(AllParts[member.connectpart[pos1]].type=="XForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            tempforce=prevforce+tempforce
+                            temp=[distance, tempforce]
+                            ShearDiagram.append(temp)                            
+                        if(AllParts[member.connectpart[pos1]].type=="YForce"):
+                            tempforce=ForceGlobalToLocal(member, AllParts[member.connectpart[pos1]], "Shear")
+                            tempforce=prevforce+tempforce
+                            temp=[distance, tempforce]
+                            ShearDiagram.append(temp)
+                    if(AllParts[member.connectpart[pos1]].category=="Support"):
+                        tempforce1=ReactionGlobalToLocal(member, 'X', AllParts[member.connectpart[pos1]].fx1, "Shear")
+                        tempforce2=ReactionGlobalToLocal(member, 'Y', AllParts[member.connectpart[pos1]].fy1, "Shear")
+                        tempforce=tempforce1+tempforce2
+                        tempforce=prevforce+tempforce
+                        temp=[distance, tempforce]
+                        ShearDiagram.append(temp)
+                            
+                #print(ShearDiagram)
+                member.ShearDiagram=ShearDiagram
+                pos1+=1
+                    
+    
+    return 0
+
+def AxialDiagram():
+    return 0
+
+def MomentDiagram():
+    return 0
+
+def DeflectionDiagram():
+    return 0
+
 def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     #KIND OF DONE, BUT A LOT OF BUGS (DITCHING THIS EFFORT FOR MSA... FOR NOW)
     startx=AllSupports[0].x1
@@ -983,17 +1147,17 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
             TempZMoment+=force.magnitude()
         if(force.gettype()=='DForce'):
             if(force.direction=="Global-Y"):
-                #print(force.x1)
-                #print(force.x2)
-                #print((((force.x2-force.x1)/2+force.x1)-startx))
+                print(force.x1)
+                print(force.x2)
+                print((((force.x2-force.x1)/2+force.x1)-startx))
                 TempZMoment+=(((force.x2-force.x1)/2+force.x1)-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-Y"):
-                angle = math.atan(force.slope)
-                f1x = force.f1*math.sin(angle)
-                f1y = force.f1*math.cos(angle)
-                f2x = force.f2*math.sin(angle)
-                f2y = force.f2*math.cos(angle)
+                angle = math.atan(slope)
+                f1x = f1*math.sin(angle)
+                f1y = f1*math.cos(angle)
+                f2x = f2*math.sin(angle)
+                f2y = f2*math.cos(angle)
                 
                 TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                 TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1005,11 +1169,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                 TempZMoment+=((force.y2-force.y1)/2-starty)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                 SumX+=(force.f1+force.f2)*(force.r2-force.r1)/2
             elif(force.direction=="Local-X"):
-                angle = math.atan(force.slope)
-                f1x = force.f1*math.sin(angle)
-                f1y = force.f1*math.cos(angle)
-                f2x = force.f2*math.sin(angle)
-                f2y = force.f2*math.cos(angle)
+                angle = math.atan(slope)
+                f1x = f1*math.sin(angle)
+                f1y = f1*math.cos(angle)
+                f2x = f2*math.sin(angle)
+                f2y = f2*math.cos(angle)
                 
                 TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                 TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1059,7 +1223,7 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     #YMoment.append(TempYMoment)
     YMoment.append(SumX)
     
-    #print(ZMoment)
+    print(ZMoment)
     
      
     for joint in AllJoints:
@@ -1100,11 +1264,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     TempZMoment+=((force.x2-force.x1)/2-startx)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                     SumY+=(force.f1+force.f2)*(force.r2-force.r1)/2
                 elif(force.direction=="Local-Y"):
-                    angle = math.atan(force.slope)
-                    f1x = force.f1*math.sin(angle)
-                    f1y = force.f1*math.cos(angle)
-                    f2x = force.f2*math.sin(angle)
-                    f2y = force.f2*math.cos(angle)
+                    angle = math.atan(slope)
+                    f1x = f1*math.sin(angle)
+                    f1y = f1*math.cos(angle)
+                    f2x = f2*math.sin(angle)
+                    f2y = f2*math.cos(angle)
                     
                     TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                     TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1116,11 +1280,11 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
                     TempZMoment+=((force.y2-force.y1)/2-starty)*((force.f1+force.f2)*(force.r2-force.r1)/2)
                     SumX+=(force.f1+force.f2)*(force.r2-force.r1)/2
                 elif(force.direction=="Local-X"):
-                    angle = math.atan(force.slope)
-                    f1x = force.f1*math.sin(angle)
-                    f1y = force.f1*math.cos(angle)
-                    f2x = force.f2*math.sin(angle)
-                    f2y = force.f2*math.cos(angle)
+                    angle = math.atan(slope)
+                    f1x = f1*math.sin(angle)
+                    f1y = f1*math.cos(angle)
+                    f2x = f2*math.sin(angle)
+                    f2y = f2*math.cos(angle)
                     
                     TempZMoment+=((force.y1+((force.y2-force.y1)*(2*f1x+f2x)/(3*(f1x+f2x)))-starty)*((f1x+f2x)*(force.r2-force.r1)/2))
                     TempZMoment+=((force.x1+((force.x2-force.x1)*(2*f1y+f2y)/(3*(f1y+f2y)))-startx)*((f1y+f2y)*(force.r2-force.r1)/2))
@@ -1173,13 +1337,19 @@ def FindReaction(AllParts, AllMembers, AllJoints, AllSupports, AllForces):
     #put zmoment into matrix format and solve
     #mat1=Matrix(((0,15.0,10.0,700.0),(1,1,1,100),(0,10.0,5.0,200.0),(-5.0,0,0,0)))
     systemz = set(ZMoment)
-    #print(systemz)    
-    #print(unknowny)
+    print(systemz)    
+    print(unknowny)
     answery = solve(systemz, *unknowny)
     
     #put ymoment into matrix format and solve
     systemy = set(YMoment)
+    print(systemy)
+    print(unknownx)
     answerx = solve(systemy, *unknownx)
+    
+    #return answer
+    print(answery)
+    print(answerx)
 
     xcount=0
     ycount=0
@@ -1248,7 +1418,7 @@ def MainParse(form):
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 35, u'x2': 525, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'S1', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 20, u'servx1': 35, u'magnitude': u'50', u'y1': 525, u'x1': 525, u'type': u'YForce'}]
     #form=[{u'y2': 300, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 10, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 300, u'x1': 150, u'type': u'member'}, {u'y2': 225, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2':30, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'name': u'S2', u'servy1': 25, u'servx1': 15, u'y1': 300, u'x1': 225, u'type': u'YSupport'}, {u'name': u'S3',u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'YSupport'}, {u'name': u'S4', u'servy1': 30, u'servx1': 45, u'y1': 225, u'x1': 675, u'type': u'XSupport'}, {u'name': u'F5', u'servy1': 25, u'servx1': 25, u'magnitude': u'100',u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 30, u'servx1': 45, u'magnitude': u'500', u'y1': 675, u'x1': 675, u'type': u'MForce'}]
     #Use the one below currently, 21x21
-    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
+    form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 15, u'servx2': 35, u'x2': 525, u'servy2': 35, u'y1': 300, u'x1': 225, u'type': u'member'}, {u'y2': 150, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 35, u'servx2': 50, u'x2': 750, u'servy2':35, u'y1': 150, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 35, u'i': 100, u'servx1': 50, u'servx2': 35, u'x2': 525, u'servy2': 25, u'y1': 150, u'x1': 750, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 35, u'servx2': 15, u'x2': 225, u'servy2': 20, u'y1': 300, u'x1': 525, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 15, u'servx2': 15, u'x2': 225, u'servy2': 25, u'y1': 375, u'x1': 225, u'type': u'member'}, {u'name': u'P5', u'servy1': 35, u'servx1': 35, u'y1': 150, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P6', u'servy1':35, u'servx1': 50, u'y1': 150, u'x1': 750, u'type': u'FixedJoint'}, {u'name': u'S7', u'servy1': 25, u'servx1': 35, u'y1': 300, u'x1': 525, u'type': u'PinSupport'}, {u'name': u'S8', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'FixedSupport'}, {u'name': u'F9', u'servy1': 30, u'servx1': 25, u'magnitude': u'900', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F10', u'servy1': 25, u'servx1': 15, u'magnitude': u'700', u'y1': 225, u'x1': 225, u'type': u'XForce'}, {u'name': u'S11', u'servy1': 35, u'servx1': 40, u'y1': 150, u'x1': 600, u'type': u'FixedSupport'}, {u'name': u'S12', u'servy1': 35, u'servx1': 45, u'y1': 150, u'x1': 675, u'type': u'PinSupport'}]
     #crazy mess
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 10, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 150, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 25, u'servx2': 35, u'x2': 525, u'servy2':20, u'y1': 375, u'x1': 375, u'type': u'member'}, {u'y2': 300, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 35, u'servx2': 45, u'x2': 675, u'servy2': 25, u'y1': 375, u'x1': 525, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M3', u'area': 10, u'servy1': 25, u'i': 100, u'servx1': 45, u'servx2': 45, u'x2': 675, u'servy2': 10, u'y1': 300, u'x1': 675, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M4', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 45, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 525, u'x1': 675, u'type': u'member'}, {u'y2': 525, u'e': 300000, u'name': u'M5', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 35, u'servx2': 20, u'x2':300, u'servy2': 10, u'y1': 450, u'x1': 525, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M6', u'area': 10, u'servy1': 10, u'i': 100, u'servx1': 20, u'servx2': 10, u'x2': 150, u'servy2': 20, u'y1': 525, u'x1': 300, u'type': u'member'}, {u'name': u'P7', u'servy1': 20, u'servx1': 10, u'y1': 375, u'x1': 150,u'type': u'Hinge'}, {u'name': u'P8', u'servy1': 20, u'servx1': 35, u'y1': 375, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P9', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'Hinge'}, {u'name': u'P10', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'FixedJoint'}, {u'name': u'P11', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P12', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'FixedJoint'}, {u'name': u'P13', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1':300, u'type': u'FixedJoint'}, {u'name': u'S14', u'servy1': 20, u'servx1': 15, u'y1': 375, u'x1': 225, u'type': u'XSupport'}, {u'name': u'S15', u'servy1': 20, u'servx1': 25, u'y1': 375, u'x1': 375, u'type': u'XSupport'}, {u'name': u'S16', u'servy1': 20, u'servx1': 20, u'y1': 375, u'x1': 300, u'type': u'YSupport'}, {u'name': u'S17', u'servy1': 25, u'servx1': 45, u'y1': 300, u'x1': 675, u'type': u'YSupport'}, {u'name': u'S18', u'servy1': 10, u'servx1': 45, u'y1': 525, u'x1': 675, u'type': u'PinSupport'}, {u'name': u'S19', u'servy1': 10, u'servx1': 20, u'y1': 525, u'x1': 300, u'type': u'PinSupport'}, {u'name': u'F20', u'servy1': 12, u'servx1': 25, u'magnitude': 1, u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'F21', u'servy1': 13, u'servx1': 39, u'magnitude': 1, u'y1': 585, u'x1': 585, u'type': u'YForce'}]
     #three beam, tilted, with y and moment
@@ -1257,9 +1427,12 @@ def MainParse(form):
     #form=[{u'y2': 450, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 15, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 20, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 450, u'x1': 300, u'type': u'member'}, {u'y2': 450, u'e': 300000, u'name': u'M2', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 30, u'servx2': 35, u'x2': 525, u'servy2': 15, u'y1': 450, u'x1': 450, u'type': u'member'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}, {u'name': u'S4', u'servy1': 15, u'servx1': 35, u'y1': 450, u'x1': 525, u'type': u'YSupport'}, {u'name': u'F5', u'servy1': 15, u'servx1': 20, u'magnitude': u'100', u'y1': 300, u'x1': 300, u'type': u'YForce'}, {u'name': u'F6', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 450, u'x1': 450, u'type': u'MForce'}]
     #simplejson
     #form=[{u'y2': 375, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 5, u'servx2': 20, u'x2': 300, u'servy2': 20, u'y1': 450, u'x1': 75, u'type': u'member'}, {u'y2': 375, u'e': 300000, u'name': u'M1', u'area': 10, u'servy1': 20, u'i': 100, u'servx1': 20, u'servx2': 25, u'x2': 375, u'servy2': 20, u'y1': 375, u'x1': 300, u'type': u'member'}, {u'name': u'F2', u'servy1': 20, u'servx1': 25, u'magnitude': u'100', u'y1': 375, u'x1': 375, u'type': u'YForce'}, {u'name': u'S3', u'servy1': 15, u'servx1': 5, u'y1': 450, u'x1': 75, u'type': u'FixedSupport'}]
+    #cantilever
+    #form=[{u'y2': 150, u'e': 300000, u'name': u'M0', u'area': 10, u'servy1': 15, u'i': 100, u'servx1': 10, u'servx2': 30, u'x2': 450, u'servy2': 15, u'y1': 150, u'x1': 150, u'type': u'member'}, {u'name': u'S1', u'servy1': 15, u'servx1': 10, u'y1': 150, u'x1': 150, u'type': u'FixedSupport'}, {u'name': u'F2', u'servy1': 15, u'servx1': 30, u'magnitude': u'50', u'y1': 420, u'x1': 420, u'type': u'YForce'}]
+    
     
     for x in form:
-        #print(x['type'])
+        print(x['type'])
         if(x['type']=='member'):
             tempmember = Member(x['servx1'], x['servy1'], x['servx2'], x['servy2'], x['i'], x['e'], x['area'], x['name'])
             AllParts.append(tempmember)
@@ -1295,7 +1468,7 @@ def MainParse(form):
     allpartcount=0
     for Part in AllParts:
         if(Part.type!='Member' and Part.type!="DForce"):
-            #print(Part.type)
+            print(Part.type)
             onmember(AllParts, Part, allpartcount)
         allpartcount+=1
     
@@ -1308,7 +1481,7 @@ def MainParse(form):
             print(Part.name, Part.onmember)
     '''
     
-    #start point/ connection association
+    #start point/ connection making
     for member in AllMembers:
         sortlist=PointsFromMember(member, AllParts)
         connectionlist=[]
@@ -1346,8 +1519,8 @@ def MainParse(form):
     
     #print(KMatrix)
     #print pointrecord
-    #print ForceVector
-    #print DeflectionVector
+    print ForceVector
+    print DeflectionVector
     #print Force_Point_Assoc, Deflection_Point_Assoc
     #print variable
     
@@ -1382,12 +1555,15 @@ def MainParse(form):
     
     #print(KMatrix*DeflectionVector-ForceVector)
     answer=solve(KMatrix*DeflectionVector-ForceVector, variable)
-    #print(answer)
+    print(answer)
     
+    
+    print(Force_Point_Assoc)
     
     for assoc in Force_Point_Assoc:
         if(assoc[2]=='x'):
             assoc[1].fx1=float(answer[assoc[0]])
+            print("here")
             #print(assoc[1].fx)
             #print(answer[assoc[0]])
         if(assoc[2]=='y'):
@@ -1417,9 +1593,7 @@ def MainParse(form):
             if(assoc[2]=='m'):
                 assoc[1].dm1=float(answer[assoc[0]])
     
-    
-    #answer=42
-    #print(answer)
+    ShearDiagram(AllParts)
     
     AllJson={}
     #print member just to test
@@ -1429,11 +1603,8 @@ def MainParse(form):
     
     AllJson.update({'Calculated': 'True'})
     #print(AllJson)
+    
+    #Different from here down
 
-    #print points
-    '''
-    for x in points.points:
-           print(x[2].name)
-    print(connections.connections)
-    '''
+
     return AllJson
