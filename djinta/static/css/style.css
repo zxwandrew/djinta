@@ -152,11 +152,29 @@ label.iPhoneCheckLabelOff span,label.iOSCheckLabelOff span{padding-right:8px}
     position:absolute;
 }
 
+.Alerts{
+	position:absolute;
+	width: 99%;
+    margin: 0px auto;
+	height:auto;
+	z-index:10000;
+	background-color: #eee;
+	color: #c00000;
+	
+	-webkit-box-shadow:  2px 2px 2px 2px #999; 
+    box-shadow:  2px 2px 2px 2px #999;
+    -webkit-border-radius: 5px;
+	border-radius: 5px;
+	
+	font-family: Helvetica, Arial, sans-serif;
+	font-size:20px;
+	display:none;
+}
 
 .Result-Background{
 	background-color:rgba(0,0,0,0.5);
 	position:absolute;
-	z-index: 9999;
+	z-index: 999;
 	width: 100%;
 	display:none;
 }
